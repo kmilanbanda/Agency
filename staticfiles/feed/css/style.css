@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+    color: #d4d4d4;                /* Softer light gray */
+    background-color: #0f1117;     /* Very dark navy-gray (pleasant) */
+}
+
+h1 {
+    color: #e2e8f0;                /* Lighter blue-gray for title */
+    border-bottom: 2px solid #2d3748;  /* Darker border */
+    padding-bottom: 10px;
+}
+
+.meta {
+    color: #a0aec0;                /* Muted light gray */
+    font-size: 0.9em;
+    margin: 10px 0 30px;
+}
+
+.content {
+    margin-bottom: 40px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background: #3182ce;           /* Slightly brighter blue for contrast */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.back-link:hover {
+    background: #2b6cb0;           /* Darker hover state */
+}

@@ -1,0 +1,46 @@
+:root {
+    --midnight-violet: #210B2C;
+    --dark-amethyst: #3D1452;
+    --velvet-orchid: #55286F;
+    --wisteria: #BC96E6;
+    --pink-orchid: #D8B4E2;
+    --petal-pink: #AE759F;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+    color: var(--petal-pink);                
+    background-color: var(--midnight-violet);     
+}
+
+h1 {
+    color: var(--pink-orchid);                
+    border-bottom: 2px solid var(--pink-orchid);
+    padding-bottom: 10px;
+}
+
+.meta {
+    color: var(--petal-pink);                
+    font-size: 0.9em;
+    margin: 10px 0 30px;
+}
+
+.content {
+    margin-bottom: 40px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background: var(--velvet-orchid);           
+    color: var(--petal-pink);
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.back-link:hover {
+    background: var(--dark-amethyst);           
+}

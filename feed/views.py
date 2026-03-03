@@ -1,12 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Entry
 
 def home(request):
     return render(request, 'feed/home.html', {})
 
 def entry_detail(request, slug):
-    try:
-        entry = Entry.objects.get(slug=slug)
-        return HttpResponse(f"<h1>{entry.title}</h1><p>{entry.content[:200]}...</p>")
-    except Entry.DoesNotExist:
-        return HttpResponse("Entry not found", status=404)
+   entry = get_object_or_404(Entry, slug=slug)
+   context = {
+       'entry': entry,
+       'title': entry.title,
+   }
+   return render(request, 'feed/entry_detail.html', context)
+

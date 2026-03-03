@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Agency</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">
+</head>
+<body>
+    <h1>{{ entry.title }}</h1>
+    
+    <div class="meta">
+        Published: {{ entry.pub_date|date:"F d, Y" }} 
+        {% if entry.updated != entry.pub_date %}
+            • Last updated: {{ entry.updated|date:"F d, Y" }}
+        {% endif %}
+    </div>
+    
+    <div class="content">
+        {{ entry.content|linebreaks }}
+        <!-- |linebreaks turns newlines into <p> or <br> tags -->
+    </div>
+    
+    <a href="{% url 'feed:home' %}" class="back-link">← Back to Home</a>
+</body>
+</html>
