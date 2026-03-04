@@ -24,14 +24,22 @@ def reader(request):
             continue
 
         for entry in feed.entries[:10]: # limit per feed
+            pub_date_parsed = entry.get('published_parsed') or entry.get('updated_parsed')
+            pub_date_str = entry.get('published') or entry.get('updated') or 'Unknown'
+
+            if pub_date_parsed is None:
+                pub_date_parsed = timezone.now().timetuple()
+                pub_date_str = f"Fetched {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+
             all_entries.append({
                 'title': entry.get('title', 'No title'),
                 'link': entry.get('link', '#'),
-                'published': entry.get('published', 'Unknown date'),
+                'published': pub_date_str,
+                'published_parsed': pub_date_parsed,
                 'description': entry.get('description', entry.get('summary', '')),
                 'source': source.title,
             })
 
-    all_entries.sort(key=lambda e: e['published'], reverse=True)
+    all_entries.sort(key=lambda e: e['published_parsed'], reverse=True)
     return render(request, 'feed/reader.html', {'entries': all_entries[:20]})
 
