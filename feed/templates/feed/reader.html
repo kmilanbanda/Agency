@@ -1,0 +1,19 @@
+{% extends 'feed/base.html' %}
+
+{% block content %}
+<h1>Agency</h1>
+
+{% if entries %}
+    <ul>
+        {% for entry in entries %}
+            <li>
+                <h3><a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a></h3>
+                <small>From: {{ entry.source }} | {{ entry.published }}</small>
+                <p>{{ entry.description|safe|truncatewords:50 }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No feeds added yet!</p>
+{% endif %}
+{% endblock %}

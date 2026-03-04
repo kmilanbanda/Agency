@@ -19,3 +19,13 @@ class Entry(models.Model):
     def get_absolute_url(self):
         # We'll use this for RSS links and future detail pages
         return reverse('feed:entry_detail', kwargs={'slug': self.slug})
+
+class FeedSource(models.Model):
+    title = models.CharField(max_length=200)
+    url = models.URLField(unique=True)
+    site_url = models.URLField(blank=True) # optional main site link
+    last_fetched = models.DateTimeField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} | Agency</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">
-</head>
-<body>
+{% extends 'feed/base.html' %}
+
+{% block title %}{{ entry.title }} | Agency{% endblock %}
+
+{% block content %}
     <h1>{{ entry.title }}</h1>
     
     <div class="meta">
@@ -23,5 +18,4 @@
     </div>
     
     <a href="{% url 'feed:home' %}" class="back-link">← Back to Home</a>
-</body>
-</html>
+{% endblock %}

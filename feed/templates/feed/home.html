@@ -1,17 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Agency</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">
-</head>
-<body>
-    <h1>Welcome to Agency!</h1>
-    <p>This is a personal project to learn some more coding skills and also learn some tech news while I'm at it!</p>
+{% extends 'feed/base.html' %}
 
-    <p><a href="{% url 'feed:rss_feed' %}">Subscribe to RSS Feed</a> (coming soon)</p>
-    <p>More to come...</p>
-</body>
-</html>
+{% block title %}Home | Agency{% endblock %}
 
+{% block content %}
+    <h2>Recent Updates</h2>
+    {% if recent_entries %}
+        <ul class="entry-list">
+            {% for entry in recent_entries %}
+                <li class="entry-item">
+                    <h3>
+                        <a href="{% url 'feed:entry_detail' entry.slug %}">
+                            {{ entry.title }}
+                        </a>
+                    </h3>
+                    <p class="meta">
+                        Published: {{ entry.pub_date|date:"F d, Y" }}
+                    </p>
+                    <p>
+                        {{ entry.content|truncatewords:30|linebreaks }}
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No updates yet — check back soon!</p>
+    {% endif %}
+
+    <p><a href="{% url 'feed:rss_feed' %}">Subscribe via RSS</a></p>
+{% endblock %}

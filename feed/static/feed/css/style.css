@@ -44,3 +44,47 @@ h1 {
 .back-link:hover {
     background: var(--dark-amethyst);           
 }
+
+.entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.entry-item {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--pink-orchid);
+}
+
+.entry-item h3 {
+    margin: 0 0 8px;
+}
+
+.entry-item h3 a {
+    color: var(--pink-orchid);
+    text-decoration: none;
+}
+
+.entry-item h3 a:hover {
+    text-decoration: underline;
+}
+
+.entry-item .meta {
+    margin: 0 0 10px;
+    font-size: 0.85em;
+}
+
+a {
+    color: var(--petal-pink);          /* example: nice blue */
+    text-decoration: none;   /* optional: remove underline */
+}
+
+a:hover {
+    color: var(--pink-orchid);          /* darker/lighter on hover */
+    text-decoration: underline;  /* optional feedback */
+}
+
+a:visited {
+    color: var(--wisteria);          /* purple-ish for visited links */
+}

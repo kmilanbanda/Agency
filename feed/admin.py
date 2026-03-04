@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Entry
+from .models import Entry, FeedSource
+
+admin.site.register(FeedSource)
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
