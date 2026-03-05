@@ -8,7 +8,7 @@
         {% for entry in entries %}
             <li>
                 <h3><a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a></h3>
-                <small>From: {{ entry.source }} | {{ entry.published }}</small>
+                <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published }}</small>
                 <p>{{ entry.description|safe|truncatewords:50 }}</p>
             </li>
         {% endfor %}
