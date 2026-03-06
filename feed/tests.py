@@ -1,4 +1,5 @@
 from django.test import TestCase
+from unittest.mock import patch, Mock
 from django.urls import reverse
 from django.utils import timezone
 from .models import Entry, FeedSource
@@ -48,6 +49,76 @@ class EntryDetailViewTest(TestCase):
         url = reverse('feed:entry_detail', kwargs={'slug': 'non-existent-slug'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+class HomeViewTest(TestCase):
+    def setUp(self):
+        self.entries = []
+        for i in range(7):
+            entry = Entry.objects.create(
+                title=f"Test Entry {i}",
+                slug=f"test-entry-{i}",
+                content=f"This is test content #{i}",
+                pub_date=timezone.now() - timezone.timedelta(hours=i)
+            )
+            self.entries.append(entry)
+
+    def test_home_status_and_template(self):
+        url = reverse('feed:home')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'feed/home.html')
+
+    def test_home_context_and_content(self):
+        url = reverse('feed:home')
+        response = self.client.get(url)
+        self.assertEqual(5, len(response.context['recent_entries']))
+        self.assertNotContains(response, "Test Entry 5")
+
+class BrokenFeedTest(TestCase):
+    def setUp(self):
+        self.source = FeedSource.objects.create(
+            title="Broken",
+            url="https://example.com/rss"
+        )
+
+        self.mock_feed = Mock() 
+        self.mock_feed.bozo = 1
+        self.mock_feed.bozo_exception = None
+        self.mock_feed.entries = []
+
+    def test_broken_feed_status(self):
+        with patch('feed.views.feedparser.parse', return_value=self.mock_feed):
+            response = self.client.get(reverse('feed:reader'))
+            self.assertEqual(response.status_code, 200)
+
+class AbsentPubDateTest(TestCase):
+    def setUp(self):
+        self.source = FeedSource.objects.create(
+            title="No Pub Date",
+            url="https://example.com/rss"
+        )
+
+        self.mock_entries = []
+        for i in range(5):
+            mock_entry = {
+                'title': f"Entry {i}",
+                'link': f"entry{i}",
+                'description': f"content{i}",
+                'published_parsed': None,
+                'updated_parsed': None,
+                'published': None
+            }
+            self.mock_entries.append(mock_entry)
+        
+        self.mock_feed = Mock() 
+        self.mock_feed.bozo = 0
+        self.mock_feed.bozo_exception = None
+        self.mock_feed.entries = self.mock_entries
+
+    def test_absent_publish_date(self):
+        with patch('feed.views.feedparser.parse', return_value=self.mock_feed):
+            response = self.client.get(reverse('feed:reader'))
+            self.assertIsNotNone(response.context['entries'][0]['published_parsed'])
 
 class FeedSourceModelTest(TestCase):
     def setUp(self):

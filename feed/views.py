@@ -1,6 +1,7 @@
 import feedparser
 from django.shortcuts import render, get_object_or_404
 from .models import Entry, FeedSource
+from django.utils import timezone
 
 def home(request):
     recent_entries = Entry.objects.order_by('-pub_date')[:5]
@@ -17,13 +18,14 @@ def entry_detail(request, slug):
 def reader(request):
     sources = FeedSource.objects.all()
     all_entries = []
+    source_limit = 10
 
     for source in sources:
         feed = feedparser.parse(source.url)
-        if feed.bozo: #skip broken feeds
+        if feed.bozo: 
             continue
 
-        for entry in feed.entries[:10]: # limit per feed
+        for entry in feed.entries[:source_limit]:
             pub_date_parsed = entry.get('published_parsed') or entry.get('updated_parsed')
             pub_date_str = entry.get('published') or entry.get('updated') or 'Unknown'
 
