@@ -28,6 +28,7 @@ def reader(request):
         for entry in feed.entries[:source_limit]:
             pub_date_parsed = entry.get('published_parsed') or entry.get('updated_parsed')
             pub_date_str = entry.get('published') or entry.get('updated') or 'Unknown'
+            image_url = getImageURL(entry)
 
             if pub_date_parsed is None:
                 pub_date_parsed = timezone.now().timetuple()
@@ -36,6 +37,7 @@ def reader(request):
             all_entries.append({
                 'title': entry.get('title', 'No title'),
                 'link': entry.get('link', '#'),
+                'image_url': image_url,
                 'published': pub_date_str,
                 'published_parsed': pub_date_parsed,
                 'description': entry.get('description', entry.get('summary', '')),
@@ -45,3 +47,12 @@ def reader(request):
     all_entries.sort(key=lambda e: e['published_parsed'], reverse=True)
     return render(request, 'feed/reader.html', {'entries': all_entries[:20]})
 
+def getImageURL(entry):
+    image_url = None
+    if 'media_content' in entry:
+        for media in entry.media_content:
+            if media.get('medium') == 'image':
+                image_url = media.get('url')
+    elif 'enclosure' in entry and entry.enclosure.get('type', '').startswith('image/'):
+        image_url = entry.enclosure.get('url')
+    return image_url

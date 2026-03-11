@@ -9,6 +9,9 @@
             <li>
                 <h3><a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a></h3>
                 <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published }}</small>
+                {% if entry.image_url %}
+                <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">
+                {% endif %}
                 <p>{{ entry.description|safe|truncatewords:50 }}</p>
             </li>
         {% endfor %}
