@@ -3,6 +3,14 @@
 {% block content %}
 <h1>Agency</h1>
 
+<form method="get" action="{% url 'feed:reader' %}">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search titles and descriptions...">
+    <button type="submit">Search</button>
+</form>
+{% if request.GET.q %}
+    <p>Showing results for: <strong>{{ request.GET.q }}</strong></p>
+{% endif %}
+
 {% if entries %}
     <ul>
         {% for entry in page_obj %}
@@ -17,11 +25,11 @@
         {% endfor %}
         <small>
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
             {% endif %}
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
             {% endif %}
         </small>  
     </ul>

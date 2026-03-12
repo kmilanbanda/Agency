@@ -20,6 +20,7 @@ def reader(request):
     sources = FeedSource.objects.all()
     all_entries = []
     source_limit = 10
+    query = request.GET.get('q', '').strip()
 
     for source in sources:
         feed = feedparser.parse(source.url)
@@ -29,7 +30,7 @@ def reader(request):
         for entry in feed.entries[:source_limit]:
             pub_date_parsed = entry.get('published_parsed') or entry.get('updated_parsed')
             pub_date_str = entry.get('published') or entry.get('updated') or 'Unknown'
-            image_url = getImageURL(entry)
+            image_url = get_image_url(entry)
 
             if pub_date_parsed is None:
                 pub_date_parsed = timezone.now().timetuple()
@@ -45,6 +46,8 @@ def reader(request):
                 'source': source.title,
             })
 
+    if query != "":
+        all_entries = filter_entries(all_entries, query)    
     all_entries.sort(key=lambda e: e['published_parsed'], reverse=True)
     paginator = Paginator(all_entries, per_page=10)
     page_number = request.GET.get('page', 1)
@@ -54,7 +57,7 @@ def reader(request):
         'entries': page_obj.object_list,
     })
 
-def getImageURL(entry):
+def get_image_url(entry):
     image_url = None
     if 'media_content' in entry:
         for media in entry.media_content:
@@ -63,3 +66,7 @@ def getImageURL(entry):
     elif 'enclosure' in entry and entry.enclosure.get('type', '').startswith('image/'):
         image_url = entry.enclosure.get('url')
     return image_url
+
+def filter_entries(entries, query): 
+    return list(filter(lambda e: query.lower() in e['title'].lower() or query.lower() in e['description'].lower(), entries))
+
