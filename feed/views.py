@@ -2,6 +2,7 @@ import feedparser
 from django.shortcuts import render, get_object_or_404
 from .models import Entry, FeedSource
 from django.utils import timezone
+from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
 
 def home(request):
     recent_entries = Entry.objects.order_by('-pub_date')[:5]
@@ -45,7 +46,13 @@ def reader(request):
             })
 
     all_entries.sort(key=lambda e: e['published_parsed'], reverse=True)
-    return render(request, 'feed/reader.html', {'entries': all_entries[:20]})
+    paginator = Paginator(all_entries, per_page=10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'feed/reader.html', {
+        'page_obj': page_obj,
+        'entries': page_obj.object_list,
+    })
 
 def getImageURL(entry):
     image_url = None
