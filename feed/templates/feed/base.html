@@ -7,6 +7,10 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">
     <link rel="alternate" type="application/rss+xml" title="Agency RSS" href="{% url 'feed:rss_feed' %}">
+    <button id="theme-toggle" aria-label="Toggle dark mode">
+        <span class="light-icon">☀️</span>
+        <span class="dark-icon" style="display:none;">🌙</span>
+    </button>
 </head>
 <body>
     <header>
@@ -26,5 +30,7 @@
     <footer>
         <p>&copy; {{ 'now'|date:"Y" }}</p>
     </footer>
+    {% load static %}
+    <script src="{% static 'feed/js/theme-toggle.js' %}"></script>
 </body>
 </html>

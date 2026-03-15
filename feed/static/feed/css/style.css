@@ -1,28 +1,47 @@
 :root {
-    --midnight-violet: #210B2C;
-    --dark-amethyst: #3D1452;
-    --velvet-orchid: #55286F;
-    --wisteria: #BC96E6;
-    --pink-orchid: #D8B4E2;
-    --petal-pink: #AE759F;
+    --bg: #f5f5f5;
+    --text: #2d3748;
+    --heading: #111827;
+    --link: #a89acd;
+    --link-hover: #7c6da8;
+    --link-visited: #5d5478;
+    --meta: #9ca3af;
+    --border: #d1d5db;
+    --accent-mint: #d4f4dd;
+    --accent-yellow: #fff9a6;
 }
+
+html.dark {
+    --bg: #121212;
+    --text: #e0e0e0;
+    --heading: #f0f0f0;
+    --link: #c9a0dc;
+    --link-hover: #d4bfff;
+    --link-visited: #b19cd9;
+    --meta: #a0aec0;
+    --border: #2d3748;
+    --accent-mint: #a8dadc; 
+    --accent-yellow: #f0e68c;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 40px auto;
-    max-width: 800px;
+    max-width: 1000px;
     line-height: 1.6;
-    color: var(--petal-pink);                
-    background-color: var(--midnight-violet);     
+    color: var(--text);                
+    background-color: var(--bg);    
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-h1 {
-    color: var(--pink-orchid);                
-    border-bottom: 2px solid var(--pink-orchid);
+h1, h2, h3 {
+    color: var(--heading);                
+    border-bottom: 2px solid var(--heading);
     padding-bottom: 10px;
 }
 
-.meta {
-    color: var(--petal-pink);                
+.meta, small, time, figcaption {
+    color: var(--meta);                
     font-size: 0.9em;
     margin: 10px 0 30px;
 }
@@ -35,14 +54,13 @@ h1 {
     display: inline-block;
     margin-top: 30px;
     padding: 10px 20px;
-    background: var(--velvet-orchid);           
-    color: var(--petal-pink);
+    color: var(--link);
     text-decoration: none;
     border-radius: 5px;
 }
 
-.back-link:hover {
-    background: var(--dark-amethyst);           
+.back-link:hover, .back-link:focus {
+    background: var(--link-hover);           
 }
 
 .entry-list {
@@ -54,7 +72,7 @@ h1 {
 .entry-item {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid var(--pink-orchid);
+    border-bottom: 1px solid var(--heading);
 }
 
 .entry-item h3 {
@@ -62,7 +80,7 @@ h1 {
 }
 
 .entry-item h3 a {
-    color: var(--pink-orchid);
+    color: var(--heading);
     text-decoration: none;
 }
 
@@ -76,15 +94,15 @@ h1 {
 }
 
 a {
-    color: var(--petal-pink);          /* example: nice blue */
-    text-decoration: none;   /* optional: remove underline */
+    color: var(--link);          
+    text-decoration: none; 
 }
 
-a:hover {
-    color: var(--pink-orchid);          /* darker/lighter on hover */
-    text-decoration: underline;  /* optional feedback */
+a:hover, a:focus {
+    color: var(--link-hover);
+    text-decoration: underline;
 }
 
 a:visited {
-    color: var(--wisteria);          /* purple-ish for visited links */
+    color: var(--link-visited);
 }
