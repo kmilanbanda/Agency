@@ -75,6 +75,11 @@ h1, h2, h3 {
     border-bottom: 1px solid var(--heading);
 }
 
+.entry-item:focus {
+    outline: 2px solid var(--link);
+    background: rgba(0, 100, 255, 0.05);
+}
+
 .entry-item h3 {
     margin: 0 0 8px;
 }
@@ -105,4 +110,16 @@ a:hover, a:focus {
 
 a:visited {
     color: var(--link-visited);
+}
+
+#theme-toggle {
+
+}
+
+#theme-toggle {
+    background-color: #5A9DF0;
+}
+
+html.dark #theme-toggle {
+    background-color: #20325A;
 }

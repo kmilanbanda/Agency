@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (saved === 'dark' \\ (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Agency{% endblock %}</title>
@@ -30,7 +40,12 @@
     <footer>
         <p>&copy; {{ 'now'|date:"Y" }}</p>
     </footer>
+    <script>
+        window.HOME_URL = "{% url 'feed:reader' %}";
+    </script>
     {% load static %}
     <script src="{% static 'feed/js/theme-toggle.js' %}"></script>
+    <script src="{% static 'feed/js/shortcuts.js' %}"></script>
+
 </body>
 </html>

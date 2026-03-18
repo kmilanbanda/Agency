@@ -14,7 +14,7 @@
 {% if entries %}
     <ul>
         {% for entry in page_obj %}
-            <li>
+            <li class="entry-item" tabindex="0">
                 <h3><a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a></h3>
                 {% if entry.image_url %}
                 <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">

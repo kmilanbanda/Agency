@@ -4,21 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('feed', '0001_initial'),
+        ("feed", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FeedSource',
+            name="FeedSource",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('url', models.URLField(unique=True)),
-                ('site_url', models.URLField(blank=True)),
-                ('last_fetched', models.DateTimeField(blank=True, null=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("url", models.URLField(unique=True)),
+                ("site_url", models.URLField(blank=True)),
+                ("last_fetched", models.DateTimeField(blank=True, null=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
             ],
         ),
     ]

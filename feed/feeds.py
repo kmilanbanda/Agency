@@ -1,6 +1,7 @@
 from django.contrib.syndication.views import Feed
-from django.urls import reverse
+
 from .models import Entry
+
 
 class LatestEntriesFeed(Feed):
     title = "Agency Updates"
@@ -8,7 +9,7 @@ class LatestEntriesFeed(Feed):
     description = "Latest updates for the RSS feed."
 
     def items(self):
-        return Entry.objects.order_by('-pub_date')[:10]
+        return Entry.objects.order_by("-pub_date")[:10]
 
     def item_title(self, item):
         return item.title
