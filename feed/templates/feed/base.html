@@ -15,37 +15,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Agency{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">    
     <link rel="alternate" type="application/rss+xml" title="Agency RSS" href="{% url 'feed:rss_feed' %}">
-    <button id="theme-toggle" aria-label="Toggle dark mode">
-        <span class="light-icon">☀️</span>
-        <span class="dark-icon" style="display:none;">🌙</span>
-    </button>
 </head>
+
 <body>
-    <header>
-        <h1><a href="{% url 'feed:home' %}">Agency</a><h1>
-        <nav>
-            <a href="{% url 'feed:home' %}">Home</a> |
-            <a href="{% url 'feed:rss_feed' %}">RSS</a> |
-            <a href="{% url 'feed:reader' %}">Reader</a>
-        </nav>
-    </header>
+    <div class="layout">
+        
+        <!--- Sidebar -->
+        <aside class="sidebar">
+            <button id="theme-toggle" aria-label="Toggle dark mode">
+                <span class="light-icon">☀️</span>
+                <span class="dark-icon" style="display:none;">🌙</span>
+            </button>
 
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+            <h1>Navigation</h1>
+            <nav>
+                <a href="{% url 'feed:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a><br> 
+                <a href="{% url 'feed:reader' %}"  class="{% if request.resolver_match.url_name == 'reader' %}active{% endif %}">Reader</a><br>
+                <a href="{% url 'feed:rss_feed' %}">RSS</a><br>
+            </nav>
+        </aside>
 
-    <footer>
-        <p>&copy; {{ 'now'|date:"Y" }}</p>
-    </footer>
+        <div class="main-content">
+            <main>
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <footer>
+                <p>&copy; {{ 'now'|date:"Y" }}</p>
+            </footer>
+        </div>
+    </div>
+
     <script>
         window.HOME_URL = "{% url 'feed:reader' %}";
     </script>
+
     {% load static %}
     <script src="{% static 'feed/js/theme-toggle.js' %}"></script>
-    <script src="{% static 'feed/js/shortcuts.js' %}"></script>
-
+    <script src="{% static 'feed/js/shortcuts.js' %}"></script> 
 </body>
 </html>

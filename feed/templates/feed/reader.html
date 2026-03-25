@@ -1,7 +1,7 @@
 {% extends 'feed/base.html' %}
 
 {% block content %}
-<h1>Agency</h1>
+<h1>Your Feed</h1>
 
 <form method="get" action="{% url 'feed:reader' %}">
     <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search titles and descriptions...">
