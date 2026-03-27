@@ -34,6 +34,17 @@
                 <a href="{% url 'feed:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a><br> 
                 <a href="{% url 'feed:reader' %}"  class="{% if request.resolver_match.url_name == 'reader' %}active{% endif %}">Reader</a><br>
                 <a href="{% url 'feed:rss_feed' %}">RSS</a><br>
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'feed:logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer; font-size: inherit;">
+                            Logout ({{ user.username }})
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'feed:login' %}">Login</a><br>
+                    <a href="{% url 'feed:register' %}">Register</a><br>
+                {% endif %}
             </nav>
         </aside>
 
@@ -50,7 +61,7 @@
     </div>
 
     <script>
-        window.HOME_URL = "{% url 'feed:reader' %}";
+        window.HOME_URL = "{% url 'feed:home' %}";
     </script>
 
     {% load static %}
