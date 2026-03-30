@@ -11,7 +11,9 @@ urlpatterns = [
     path("reader/", views.reader, name="reader"),
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="feed/login.html"),
+        auth_views.LoginView.as_view(
+            template_name="feed/login.html", next_page="feed:reader"
+        ),
         name="login",
     ),
     path(

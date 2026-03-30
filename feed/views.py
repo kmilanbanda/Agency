@@ -1,5 +1,6 @@
 import feedparser
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
@@ -99,11 +100,12 @@ def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            login(request, user)
             messages.success(
-                request, "Account created successfully! You can now log in."
+                request, f"Welcome, {user.username}! Your account has been created."
             )
-            return redirect("feed:login")
+            return redirect("feed:reader")
     else:
         form = UserCreationForm()
 
