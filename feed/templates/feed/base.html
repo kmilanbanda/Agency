@@ -37,9 +37,7 @@
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'feed:logout' %}" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer; font-size: inherit;">
-                            Logout ({{ user.username }})
-                        </button>
+                        <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer; font-size: inherit;">Logout ({{ user.username }})</button>
                     </form>
                 {% else %}
                     <a href="{% url 'feed:login' %}">Login</a><br>

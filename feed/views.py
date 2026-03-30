@@ -103,7 +103,7 @@ def register(request):
             messages.success(
                 request, "Account created successfully! You can now log in."
             )
-            return redirect("login")
+            return redirect("feed:login")
     else:
         form = UserCreationForm()
 
