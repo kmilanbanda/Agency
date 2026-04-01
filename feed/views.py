@@ -6,7 +6,8 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import Entry, FeedSource
+from .forms import AddFeedForm
+from .models import Entry, FeedSource, Subscription
 
 
 def home(request):
@@ -24,7 +25,12 @@ def entry_detail(request, slug):
 
 
 def reader(request):
-    sources = FeedSource.objects.all()
+    if not request.user.is_authenticated:
+        return render(
+            request,
+            "feed/reader.html",
+        )
+    sources = FeedSource.objects.filter(subscription__user=request.user)
     all_entries = []
     source_limit = 10
     query = request.GET.get("q", "").strip()
@@ -110,3 +116,45 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, "feed/register.html", {"form": form})
+
+
+def feeds(request):
+    if not request.user.is_authenticated:
+        return render(
+            request,
+            "feed/feeds.html",
+        )
+
+    if request.method == "POST":
+        if "delete_feed" in request.POST:
+            feed_id = request.POST.get("feed_id")
+            Subscription.objects.filter(id=feed_id, user=request.user).delete()
+            messages.success(request, "Feed removed from your subscriptions.")
+            return redirect("feed:feeds")
+
+        form = AddFeedForm(request.POST)
+        if form.is_valid():
+            feed_source = form.save(commit=False)
+
+            existing = FeedSource.objects.filter(url=feed_source.url).first()
+
+            if not existing:
+                feed_source.save()
+
+            Subscription.objects.get_or_create(user=request.user, feed=feed_source)
+
+            messages.success(request, f'Feed "{feed_source.title}" added successfully!')
+            return redirect("feed:feeds")
+    else:
+        form = AddFeedForm()
+
+    subscriptions = Subscription.objects.filter(user=request.user).select_related(
+        "feed"
+    )
+
+    context = {
+        "form": form,
+        "subscriptions": subscriptions,
+    }
+
+    return render(request, "feed/feeds.html", context)

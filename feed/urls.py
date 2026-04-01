@@ -22,5 +22,6 @@ urlpatterns = [
         name="logout",
     ),
     path("register/", views.register, name="register"),
+    path("feeds/", views.feeds, name="feeds"),
     path("<slug:slug>/", views.entry_detail, name="entry_detail"),
 ]

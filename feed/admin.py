@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Entry, FeedSource
+from .models import Entry, FeedSource, Subscription
 
 admin.site.register(FeedSource)
 
@@ -12,3 +12,9 @@ class EntryAdmin(admin.ModelAdmin):
     search_fields = ("title", "content")
     prepopulated_fields = {"slug": ("title",)}
     date_hierarchy = "pub_date"
+
+
+@admin.register(Subscription)
+class UserFeedAdmin(admin.ModelAdmin):
+    list_display = ("user", "feed", "subscribed_at")
+    list_filter = ("subscribed_at",)

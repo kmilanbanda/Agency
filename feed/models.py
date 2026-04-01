@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -35,3 +36,21 @@ class FeedSource(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    feed = models.ForeignKey(FeedSource, on_delete=models.CASCADE)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    is_favorite = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} to {self.feed}"
+
+    class Meta:
+        verbose_name_plural = "subscriptions"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "feed"], name="unique_user_feed_subscription"
+            )
+        ]

@@ -32,7 +32,8 @@
             <h1>Navigation</h1>
             <nav>
                 <a href="{% url 'feed:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a><br> 
-                <a href="{% url 'feed:reader' %}"  class="{% if request.resolver_match.url_name == 'reader' %}active{% endif %}">Reader</a><br>
+                <a href="{% url 'feed:reader' %}" class="{% if request.resolver_match.url_name == 'reader' %}active{% endif %}">Reader</a><br>
+                <a href="{% url 'feed:feeds' %}" class="{% if request.resolver_match.url_name == 'feeds' %}active{% endif %}">Feeds</a><br>
                 <a href="{% url 'feed:rss_feed' %}">RSS</a><br>
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'feed:logout' %}" style="display: inline;">
