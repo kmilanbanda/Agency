@@ -172,3 +172,12 @@ body {
     background-color: #1e40af;
     color: #bfdbfe;
 }
+
+.hero {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: clamp(2rem, 8vw, 6rem)
+}

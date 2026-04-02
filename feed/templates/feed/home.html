@@ -1,8 +1,18 @@
-{% extends 'feed/base.html' %}
+{% extends 'feed/base_stripped.html' %}
 
 {% block title %}Home | Agency{% endblock %}
 
 {% block content %}
+    <div class="hero">
+        <div>
+            <h1>Agency</h1>
+            <span style="text-decoration: underline;">You</span> Are In Charge.<br>Take The Initiative.<br>Be Intentional.<br>Take. Back. <span style="color: red;">Agency.</span>
+        </div>
+    </div>
+    <div style="text-align: center;">
+       <a href="{% url 'feed:reader' %}">Get Started</a>
+    </div>
+
     <h2>Recent Updates</h2>
     {% if recent_entries %}
         <ul class="entry-list">

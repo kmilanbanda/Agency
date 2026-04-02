@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (saved === 'dark' \\ (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agency{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">    
+    <link rel="alternate" type="application/rss+xml" title="Agency RSS" href="{% url 'feed:rss_feed' %}">
+</head>
+
+<body>
+    <div class="layout"> 
+        <div class="main-content">
+            <main>
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <footer>
+                <button id="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="light-icon">☀️</span>
+                    <span class="dark-icon" style="display:none;">🌙</span>
+                </button>
+
+                <p>&copy; {{ 'now'|date:"Y" }}</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        window.HOME_URL = "{% url 'feed:home' %}";
+    </script>
+
+    {% load static %}
+    <script src="{% static 'feed/js/theme-toggle.js' %}"></script>
+    <script src="{% static 'feed/js/shortcuts.js' %}"></script> 
+</body>
+</html>
