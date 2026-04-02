@@ -25,12 +25,9 @@ def entry_detail(request, slug):
 
 
 def reader(request):
-    if not request.user.is_authenticated:
-        return render(
-            request,
-            "feed/reader.html",
-        )
-    sources = FeedSource.objects.filter(subscription__user=request.user)
+    sources = FeedSource.objects.all()
+    if request.user.is_authenticated:
+        sources = FeedSource.objects.filter(subscription__user=request.user)
     all_entries = []
     source_limit = 10
     query = request.GET.get("q", "").strip()
