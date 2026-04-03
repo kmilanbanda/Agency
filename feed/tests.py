@@ -182,6 +182,25 @@ class UserTest(TestCase):
         self.assertContains(response, "add-feed")
 
 
+class RegisterTest(TestCase):
+    def setUp(self):
+        self.form_data = {
+            "username": "testuser",
+            "password1": "testpassword123",
+            "password2": "testpassword123",
+        }
+
+    def test_register_post(self):
+        response = self.client.post(reverse("feed:register"), self.form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(username="testuser").exists())
+
+    def test_register_get(self):
+        response = self.client.get(reverse("feed:register"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "feed/register.html")
+
+
 class AddDeleteFeedTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
