@@ -1,10 +1,11 @@
 from unittest.mock import Mock, patch
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Entry, FeedSource
+from .models import Entry, FeedSource, Subscription
 
 
 class EntryModelTest(TestCase):
@@ -164,3 +165,62 @@ class ReaderViewTest(TestCase):
         response = self.client.get(reverse("feed:reader"))
         self.assertContains(response, "Test Feed")
         self.assertContains(response, "<li")
+
+
+class UserTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword123"
+        )
+
+        self.client.login(username="testuser", password="testpassword123")
+
+    def test_authenticated_user(self):
+        response = self.client.get("/feeds/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Your Feed Subscriptions")
+        self.assertContains(response, "add-feed")
+
+
+class AddDeleteFeedTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser", password="testpassword123"
+        )
+
+        self.client.login(username="testuser", password="testpassword123")
+
+    def test_add_feed(self):
+        form_data = {"title": "New Test Feed", "url": "https://example.com/feed.xml"}
+
+        self.client.login(username="testuser", password="testpassword123")
+
+        response = self.client.post(reverse("feed:feeds"), form_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            FeedSource.objects.filter(url="https://example.com/feed.xml").exists()
+        )
+        feed = FeedSource.objects.get(url="https://example.com/feed.xml")
+        self.assertTrue(Subscription.objects.filter(user=self.user, feed=feed).exists())
+
+    def test_delete_feed(self):
+        feed_source = FeedSource.objects.create(
+            title="Test Feed to Delete", url="https://example.com/delete-test.xml"
+        )
+
+        subscription = Subscription.objects.create(user=self.user, feed=feed_source)
+
+        response = self.client.post(
+            reverse("feed:feeds"), {"delete_feed": "1", "feed_id": subscription.id}
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("feed:feeds"))
+        self.assertFalse(Subscription.objects.filter(id=subscription.id).exists())
+        self.assertTrue(FeedSource.objects.filter(id=feed_source.id).exists())
+
+    def test_feeds_while_logged_out(self):
+        self.client.logout()
+
+        response = self.client.get(reverse("feed:feeds"))
+        self.assertEqual(response.status_code, 200)
