@@ -23,5 +23,6 @@ urlpatterns = [
     ),
     path("register/", views.register, name="register"),
     path("feeds/", views.feeds, name="feeds"),
+    path("feeds/opml", views.opml, name="opml"),
     path("<slug:slug>/", views.entry_detail, name="entry_detail"),
 ]

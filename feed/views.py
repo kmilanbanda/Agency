@@ -1,13 +1,15 @@
 import feedparser
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import AddFeedForm
-from .models import Entry, FeedSource, Subscription
+from .models import Category, Entry, FeedSource, Subscription
 
 
 def home(request):
@@ -27,7 +29,7 @@ def entry_detail(request, slug):
 def reader(request):
     sources = FeedSource.objects.all()
     if request.user.is_authenticated:
-        sources = FeedSource.objects.filter(subscription__user=request.user)
+        sources = FeedSource.objects.filter(subscriptions__user=request.user)
     all_entries = []
     source_limit = 10
     query = request.GET.get("q", "").strip()
@@ -155,3 +157,59 @@ def feeds(request):
     }
 
     return render(request, "feed/feeds.html", context)
+
+
+@login_required
+def opml(request):
+    if request.method == "GET":
+        categories = Category.objects.filter(user=request.user).prefetch_related(
+            "subscriptions"
+        )
+        subscriptions = Subscription.objects.filter(user=request.user).select_related(
+            "feed", "category"
+        )
+
+        opml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Agency - My Feeds</title>
+    <dateCreated>{}</dateCreated>
+  </head>
+  <body>
+""".format(timezone.now().strftime("%a, %d %b %Y %H:%M:%S GMT"))
+
+        for category in categories:
+            opml_content += (
+                f'      <outline text="{category.title}" title="{category.title}">\n'
+            )
+
+            for sub in category.subscriptions.all():
+                feed = sub.feed
+                opml_content += f'      <outline text="{sub.title or feed.title}" '
+                opml_content += f'type="rss" xmlUrl="{feed.url}" '
+                if feed.site_url:
+                    opml_content += f'htmlUrl="{feed.site_url}" '
+                opml_content += "/>\n"
+
+            opml_content += "   </outline>\n"
+
+        uncategorized = subscriptions.filter(category__isnull=True)
+        if uncategorized.exists():
+            opml_content += '   <outline text="Uncategorized">\n'
+            for sub in uncategorized:
+                feed = sub.feed
+                opml_content += f'      <outline text="{sub.title or feed.title}" '
+                opml_content += f'type="rss" xmlUrl="{feed.url}" '
+                if feed.site_url:
+                    opml_content += f'htmlUrl="{feed.site_url}" '
+                opml_content += "/>\n"
+            opml_content += "   </outline>\n"
+
+        opml_content += "   </body>\n</opml>"
+
+        response = HttpResponse(opml_content, content_type="text/xml")
+        response["Content-Disposition"] = 'attachment; filename="my-feeds.opml"'
+        return response
+
+    if request.method == "POST":
+        pass

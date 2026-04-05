@@ -4,6 +4,15 @@
 <h1>Your Feed Subscriptions</h1>
 {% if user.is_authenticated %}
 
+    <div>
+        <h3>Export OPML</h3>
+        <form method="get" action="{% url 'feed:opml' %}" style="display: inline;">
+            <button type="submit" name="export_opml">
+                Export
+            </button>
+        </form>
+    </div>
+
     <div class="add-feed'form">
         <h3>Add New Feed</h3>
         <form method="post">

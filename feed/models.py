@@ -38,9 +38,43 @@ class FeedSource(models.Model):
         return self.title
 
 
+class Category(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="categories")
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, blank=True)
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "categories"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "title", "parent"],
+                name="unique_user_title_parent_category",
+            )
+        ]
+
+    def __str__(self):
+        return self.title
+
+
 class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    feed = models.ForeignKey(FeedSource, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="subscriptions"
+    )
+    feed = models.ForeignKey(
+        FeedSource, on_delete=models.CASCADE, related_name="subscriptions"
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subscriptions",
+    )
+    title = models.CharField(max_length=200, blank=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
     is_favorite = models.BooleanField(default=False)
 
