@@ -1,3 +1,4 @@
+import defusedxml.ElementTree as ET
 import feedparser
 from django.contrib import messages
 from django.contrib.auth import login
@@ -162,14 +163,96 @@ def feeds(request):
 @login_required
 def opml(request):
     if request.method == "GET":
-        categories = Category.objects.filter(user=request.user).prefetch_related(
-            "subscriptions"
-        )
-        subscriptions = Subscription.objects.filter(user=request.user).select_related(
-            "feed", "category"
-        )
+        return export_opml(request)
+    elif request.method == "POST":
+        return import_opml(request)
+    else:
+        messages.warning(request, "Improper HTTP request")
+        return redirect("feed:feeds")
 
-        opml_content = """<?xml version="1.0" encoding="UTF-8"?>
+
+def import_opml(request):
+    if request.FILES.get("opml_file"):
+        opml_file = request.FILES["opml_file"]
+
+        try:
+            tree = ET.parse(opml_file)
+            root = tree.getroot()
+
+            imported_count = 0
+            skipped_count = 0
+
+            for outline in root.findall(".//body/outline"):
+                title = outline.get("text") or outline.get("title")
+
+                if len(outline):
+                    category, _ = Category.objects.get_or_create(
+                        user=request.user, title=title
+                    )
+
+                    for feed_outline in outline.findall("outline"):
+                        feed_url = feed_outline.get("xmlUrl")
+                        feed_title = feed_outline.get("text") or feed_outline.get(
+                            "title"
+                        )
+
+                        if feed_url:
+                            feed_source, _ = FeedSource.objects.get_or_create(
+                                url=feed_url,
+                                defaults={"title": feed_title or "Untitled Feed"},
+                            )
+
+                            _, sub_created = Subscription.objects.get_or_create(
+                                user=request.user,
+                                feed=feed_source,
+                                defaults={"category": category},
+                            )
+
+                            if sub_created:
+                                imported_count += 1
+                            else:
+                                skipped_count += 1
+                else:
+                    feed_url = outline.get("xmlUrl")
+                    if feed_url:
+                        feed_source, _ = FeedSource.objects.get_or_create(
+                            url=feed_url,
+                            defaults={"title": title or "Untitled Feed"},
+                        )
+
+                        _, sub_created = Subscription.objects.get_or_create(
+                            user=request.user, feed=feed_source
+                        )
+
+                        if sub_created:
+                            imported_count += 1
+                        else:
+                            skipped_count += 1
+
+            messages.success(
+                request,
+                f"Successfully imported {imported_count} feeds!   "
+                f"Skipped {skipped_count} duplicates.",
+            )
+            return redirect("feed:feeds")
+
+        except Exception as e:
+            messages.error(request, f"Failed to import OPML: {e!s}")
+            return redirect("feed:feeds")
+
+    messages.error(request, "No opml_file in request")
+    return redirect("feed:feeds")
+
+
+def export_opml(request):
+    categories = Category.objects.filter(user=request.user).prefetch_related(
+        "subscriptions"
+    )
+    subscriptions = Subscription.objects.filter(user=request.user).select_related(
+        "feed", "category"
+    )
+
+    opml_content = """<?xml version="1.0" encoding="UTF-8"?>
 <opml version="2.0">
   <head>
     <title>Agency - My Feeds</title>
@@ -178,38 +261,35 @@ def opml(request):
   <body>
 """.format(timezone.now().strftime("%a, %d %b %Y %H:%M:%S GMT"))
 
-        for category in categories:
-            opml_content += (
-                f'      <outline text="{category.title}" title="{category.title}">\n'
-            )
+    for category in categories:
+        opml_content += (
+            f'      <outline text="{category.title}" title="{category.title}">\n'
+        )
 
-            for sub in category.subscriptions.all():
-                feed = sub.feed
-                opml_content += f'      <outline text="{sub.title or feed.title}" '
-                opml_content += f'type="rss" xmlUrl="{feed.url}" '
-                if feed.site_url:
-                    opml_content += f'htmlUrl="{feed.site_url}" '
-                opml_content += "/>\n"
+        for sub in category.subscriptions.all():
+            feed = sub.feed
+            opml_content += f'      <outline text="{sub.title or feed.title}" '
+            opml_content += f'type="rss" xmlUrl="{feed.url}" '
+            if feed.site_url:
+                opml_content += f'htmlUrl="{feed.site_url}" '
+            opml_content += "/>\n"
 
-            opml_content += "   </outline>\n"
+        opml_content += "   </outline>\n"
 
-        uncategorized = subscriptions.filter(category__isnull=True)
-        if uncategorized.exists():
-            opml_content += '   <outline text="Uncategorized">\n'
-            for sub in uncategorized:
-                feed = sub.feed
-                opml_content += f'      <outline text="{sub.title or feed.title}" '
-                opml_content += f'type="rss" xmlUrl="{feed.url}" '
-                if feed.site_url:
-                    opml_content += f'htmlUrl="{feed.site_url}" '
-                opml_content += "/>\n"
-            opml_content += "   </outline>\n"
+    uncategorized = subscriptions.filter(category__isnull=True)
+    if uncategorized.exists():
+        opml_content += '   <outline text="Uncategorized">\n'
+        for sub in uncategorized:
+            feed = sub.feed
+            opml_content += f'      <outline text="{sub.title or feed.title}" '
+            opml_content += f'type="rss" xmlUrl="{feed.url}" '
+            if feed.site_url:
+                opml_content += f'htmlUrl="{feed.site_url}" '
+            opml_content += "/>\n"
+        opml_content += "   </outline>\n"
 
-        opml_content += "   </body>\n</opml>"
+    opml_content += "   </body>\n</opml>"
 
-        response = HttpResponse(opml_content, content_type="text/xml")
-        response["Content-Disposition"] = 'attachment; filename="my-feeds.opml"'
-        return response
-
-    if request.method == "POST":
-        pass
+    response = HttpResponse(opml_content, content_type="text/xml")
+    response["Content-Disposition"] = 'attachment; filename="my-feeds.opml"'
+    return response

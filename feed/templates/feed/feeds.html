@@ -5,7 +5,17 @@
 {% if user.is_authenticated %}
 
     <div>
-        <h3>Export OPML</h3>
+        <h3>Import/Export OPML</h3>
+        <form method="post" action="{% url 'feed:opml' %}" enctype="multipart/form-data" style="display: inline;">
+            {% csrf_token %}
+            <div style="margin: 20px 0;">
+                <label for="opml_file">Select OPML file to import:</label><br>
+                <input type="file" name="opml_file" id="opml_file" accept=".opml,.xml" require>
+            </div>
+            <button type="submit" name="import_opml">
+                Import
+            </button>
+        </form>
         <form method="get" action="{% url 'feed:opml' %}" style="display: inline;">
             <button type="submit" name="export_opml">
                 Export
