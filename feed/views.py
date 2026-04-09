@@ -293,3 +293,8 @@ def export_opml(request):
     response = HttpResponse(opml_content, content_type="text/xml")
     response["Content-Disposition"] = 'attachment; filename="my-feeds.opml"'
     return response
+
+
+@login_required
+def categorize_subscription(request):
+    pass

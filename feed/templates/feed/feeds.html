@@ -51,6 +51,10 @@
                             Remove
                         </button>
                     </form>
+
+                    <button onclick="openCategorizeModal('{{ subscription.id }}', '{{ subscription.feed.title|escapejs }}')">
+                        Categorize
+                    </button>
                 </li>
             {% endfor %}
         </ul>
@@ -60,6 +64,47 @@
 {% else %}
     <p><a href="{% url 'feed:login' %}">Login</a> or <a href="{% url 'feed:register' %}">Register</a> to get started!</p>
 {% endif %}
+
+<div id="categorizeModal" class="modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <h3>Categorize Feed</h3>
+        <p id="modal-feed-title" style="font-weight: bold; margin-bottom: 15px;"></p>
+
+        <form id="categorizeForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="subscription_id" id="modal-subscription-id">
+
+            <div style="margin: 15px 0;">
+                <label>
+                    <input type="radio" name="category_choice" value"existing" checked onchange="toggleCategoryFields()">
+                    Add to existing category
+                </label>
+                <br><br>
+                <select name="category_id" id="existing-category-select" style="width: 100%; padding: 8px;">
+                    <option value="">-- Select category --</option>
+                    {% for category in user_categories %}
+                        <option value="{{ category.id }}">{{ category.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="margin: 15px 0;">
+                <label>
+                    <input type="radio" name="category_choice" value="new" onchange="toggleCategoryFields()">
+                    Create new category
+                </label>
+                <br>
+                <input type="text" name"new_category_name" id="new-category-input" placeholder="New category name" style="width: 100%; padding: 8px; display: none;">
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="submit">Save Category</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 {% endblock %}
 

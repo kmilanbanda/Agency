@@ -6,7 +6,7 @@
             const saved = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            if (saved === 'dark' \\ (!saved && prefersDark)) {
+            if (saved === 'dark' || (!saved && prefersDark)) {
                 document.documentElement.classList.add('dark');
             }
         })();
@@ -65,6 +65,7 @@
 
     {% load static %}
     <script src="{% static 'feed/js/theme-toggle.js' %}"></script>
-    <script src="{% static 'feed/js/shortcuts.js' %}"></script> 
+    <script src="{% static 'feed/js/shortcuts.js' %}"></script>
+    <script src="{% static 'feed/js/categorizeModal.js' %}"></script>
 </body>
 </html>
