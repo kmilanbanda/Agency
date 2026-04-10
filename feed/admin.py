@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import Category, Entry, FeedSource, Subscription
 
 admin.site.register(FeedSource)
-admin.site.register(Category)
 
 
 @admin.register(Entry)
@@ -19,3 +18,9 @@ class EntryAdmin(admin.ModelAdmin):
 class UserFeedAdmin(admin.ModelAdmin):
     list_display = ("user", "feed", "subscribed_at")
     list_filter = ("subscribed_at",)
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "created_at")
+    list_filter = ("created_at",)

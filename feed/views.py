@@ -152,9 +152,12 @@ def feeds(request):
         "feed"
     )
 
+    user_categories = Category.objects.filter(user=request.user)
+
     context = {
         "form": form,
         "subscriptions": subscriptions,
+        "user_categories": user_categories,
     }
 
     return render(request, "feed/feeds.html", context)

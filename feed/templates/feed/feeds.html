@@ -81,7 +81,7 @@
                     Add to existing category
                 </label>
                 <br><br>
-                <select name="category_id" id="existing-category-select" style="width: 100%; padding: 8px;">
+                <select name="category" id="existing-category-select" style="width: 100%; padding: 8px;">
                     <option value="">-- Select category ({{ user_categories|length }}) --</option>
                     {% for category in user_categories %}
                         <option value="{{ category.id }}">{{ category.title }}</option>
