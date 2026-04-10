@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import AddFeedForm
+from .forms import AddFeedForm, CategorizeForm
 from .models import Category, Entry, FeedSource, Subscription
 
 
@@ -296,5 +296,29 @@ def export_opml(request):
 
 
 @login_required
-def categorize_subscription(request):
-    pass
+def categorize_subscription(request, subscription_id):
+    subscription = get_object_or_404(
+        Subscription, id=subscription_id, user=request.user
+    )
+
+    if request.method == "POST":
+        form = CategorizeForm(request.POST, user=request.user)
+        if form.is_valid():
+            category_choice = form.cleaned_data["category_choice"]
+
+            if category_choice == "new":
+                category_name = form.cleaned_data["new_category_name"]
+                category, _ = Category.objects.get_or_create(
+                    user=request.user, title=category_name
+                )
+            else:
+                category = form.cleaned_data["category"]
+
+            subscription.category = category
+            subscription.save()
+
+            messages.success(request, f'Feed categorized under "{category.title}"')
+    else:
+        messages.error(request, "Invalid category selection")
+
+    return redirect("feed:feeds")

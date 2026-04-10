@@ -57,7 +57,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return self.title
+        return self.title or f"Category {self.id}"
 
 
 class Subscription(models.Model):

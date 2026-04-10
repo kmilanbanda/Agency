@@ -1,8 +1,9 @@
 from django.contrib import admin
 
-from .models import Entry, FeedSource, Subscription
+from .models import Category, Entry, FeedSource, Subscription
 
 admin.site.register(FeedSource)
+admin.site.register(Category)
 
 
 @admin.register(Entry)

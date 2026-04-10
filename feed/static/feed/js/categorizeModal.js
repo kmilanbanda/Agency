@@ -1,10 +1,14 @@
 function openCategorizeModal(subscriptionId, feedTitle) {
     document.getElementById('modal-subscription-id').value = subscriptionId;
     document.getElementById('modal-feed-title').textContent = feedTitle;
+    
+    const form = document.getElementById('categorizeForm');
+    form.action = `/feeds/${subscriptionId}/categories/`;
+
     document.getElementById('categorizeModal').style.display = 'block'; // makes the modal visible
     document.getElementById('existing-category-select').value = '';
     document.getElementById('new-category-input').value = '';
-
+    
 }
 
 function closeModal() {
