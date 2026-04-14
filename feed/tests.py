@@ -1,3 +1,4 @@
+import tempfile
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
@@ -5,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Entry, FeedSource, Subscription
+from .models import Category, Entry, FeedSource, Subscription
 
 
 class EntryModelTest(TestCase):
@@ -243,3 +244,108 @@ class AddDeleteFeedTest(TestCase):
 
         response = self.client.get(reverse("feed:feeds"))
         self.assertEqual(response.status_code, 200)
+
+
+class OPMLTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="username", password="password")
+        self.client.login(username="username", password="password")
+
+    def test_import_opml_file(self):
+        opml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head><title>Test Feeds</title></head>
+  <body>
+    <outline text="News">
+      <outline text="BBC News" xmlUrl="https://feeds.bbci.co.uk/news/rss.xml"/>
+      <outline text="CNN" xmlUrl="https://rss.cnn.com/rss/cnn_topstories.rss"/>
+    </outline>
+    <outline text="Tech">
+      <outline text="Hacker News" xmlUrl="https://news.ycombinator.com/rss"/>
+    </outline>
+  </body>
+</opml>"""
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".opml", delete=False) as tmp:
+            tmp.write(opml_content)
+            tmp_path = tmp.name
+
+        with open(tmp_path, "rb") as f:
+            response = self.client.post(
+                reverse("feed:opml"), {"opml_file": f}, format="multipart"
+            )
+
+        import os
+
+        os.unlink(tmp_path)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            FeedSource.objects.filter(url="https://news.ycombinator.com/rss").exists()
+        )
+
+    def test_export_opml_file(self):
+        feed = FeedSource.objects.create(
+            title="Test Feed", url="https://example.com/test.xml"
+        )
+        Subscription.objects.create(user=self.user, feed=feed)
+
+        response = self.client.get(reverse("feed:opml"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/xml")
+        self.assertTrue("attachment" in response["Content-Disposition"])
+        self.assertTrue("my-feeds.opml" in response["Content-Disposition"])
+
+        content = response.content.decode("utf-8")
+        self.assertIn('<opml version="2.0">', content)
+        self.assertIn("Test Feed", content)
+        self.assertIn("https://example.com/test.xml", content)
+
+
+class CategorizationTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="username", password="password")
+        self.client.login(username="username", password="password")
+        feed = FeedSource.objects.create(
+            title="Test Feed", url="https://example.com/test.xml"
+        )
+        self.subscription = Subscription.objects.create(user=self.user, feed=feed)
+
+    def test_categorize_subscription(self):
+        category = Category.objects.create(user=self.user, title="Test")
+
+        form_data = {"category_choice": "existing", "category": category.id}
+
+        url = reverse(
+            "feed:categorize_subscription",
+            kwargs={"subscription_id": self.subscription.id},
+        )
+        response = self.client.post(url, form_data)
+
+        updated_subscription = Subscription.objects.select_related("category").get(
+            id=self.subscription.id
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(updated_subscription.category.title, category.title)
+
+    def test_new_category(self):
+        category_choice = "new"
+        new_category_name = "New Test Category"
+
+        form_data = {
+            "category_choice": category_choice,
+            "new_category_name": new_category_name,
+        }
+
+        url = reverse(
+            "feed:categorize_subscription",
+            kwargs={"subscription_id": self.subscription.id},
+        )
+        response = self.client.post(url, form_data)
+
+        updated_subscription = Subscription.objects.select_related("category").get(
+            id=self.subscription.id
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(updated_subscription.category.title, new_category_name)

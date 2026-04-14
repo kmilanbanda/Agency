@@ -16,7 +16,7 @@ class EntryAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class UserFeedAdmin(admin.ModelAdmin):
-    list_display = ("user", "feed", "subscribed_at")
+    list_display = ("user", "feed", "subscribed_at", "category")
     list_filter = ("subscribed_at",)
 
 
