@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import defusedxml.ElementTree as ET
 import feedparser
 from django.contrib import messages
@@ -149,8 +151,12 @@ def feeds(request):
         form = AddFeedForm()
 
     subscriptions = Subscription.objects.filter(user=request.user).select_related(
-        "feed"
+        "category"
     )
+    categorized_subs = defaultdict(list)
+
+    for sub in subscriptions:
+        categorized_subs[sub.category.title].append(sub)
 
     user_categories = Category.objects.filter(user=request.user)
 
@@ -158,6 +164,8 @@ def feeds(request):
         "form": form,
         "subscriptions": subscriptions,
         "user_categories": user_categories,
+        "categorized_subs": categorized_subs,
+        "categorized_items": categorized_subs.items(),
     }
 
     return render(request, "feed/feeds.html", context)

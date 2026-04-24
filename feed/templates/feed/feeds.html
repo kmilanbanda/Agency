@@ -35,29 +35,36 @@
     <hr>
 
     <h3>Your Feeds</h3>
-    {% if subscriptions %}
-        <ul>
-            {% for subscription in subscriptions %}
-                <li>
-                    <div>
-                        <strong>{{ subscription.feed.title }}</strong><br>
-                        <small>{{ subscription.feed.url }}</small>
-                    </div>
+    {% if categorized_subs %}
+        {% for category, subscriptions in categorized_items %}
+            {% if subscriptions %}
+                <h3>{{ category.title }}</h3><br>
+                <ul>
+                    {% for subscription in subscriptions %}
+                         <li>
+                            <div>
+                                <strong>{{ subscription.feed.title }}</strong><br>
+                                <small>{{ subscription.feed.url }}</small>
+                            </div>
 
-                    <form method="post" style="display: inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="feed_id" value="{{ subscription.id }}">
-                        <button type="submit" name="delete_feed" value="1" onclick="return confirm('Remove this feed?')">
-                            Remove
-                        </button>
-                    </form>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="feed_id" value="{{ subscription.id }}">
+                                <button type="submit" name="delete_feed" value="1" onclick="return confirm('Remove this feed?')">
+                                    Remove
+                                </button>
+                            </form>
 
-                    <button onclick="openCategorizeModal({{ subscription.id }}, '{{ subscription.feed.title|escapejs }}')">
-                        Categorize
-                    </button>
-                </li>
-            {% endfor %}
-        </ul>
+                            <button onclick="openCategorizeModal({{ subscription.id }}, '{{ subscription.feed.title|escapejs }}')">
+                                Categorize
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>You have no subscriptions in this category yet!</p>
+            {% endif %}
+        {% endfor %}
     {% else %}
         <p>You have no subscriptions yet!</p>
     {% endif %}
