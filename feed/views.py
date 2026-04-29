@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import UTC, datetime
 
 import defusedxml.ElementTree as ET
 import feedparser
@@ -12,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import AddFeedForm, CategorizeForm
-from .models import Category, Entry, FeedSource, Subscription
+from .models import Category, Entry, FeedItem, FeedSource, Subscription
 
 
 def home(request):
@@ -43,31 +44,42 @@ def reader(request):
             continue
 
         for entry in feed.entries[:source_limit]:
-            pub_date_parsed = entry.get("published_parsed") or entry.get(
+            published_parsed = entry.get("published_parse") or entry.get(
                 "updated_parsed"
             )
-            pub_date_str = entry.get("published") or entry.get("updated") or "Unknown"
+            published_at = None
+            if published_parsed:
+                published_at = datetime(*published_parsed[:6], tzinfo=UTC)
             image_url = get_image_url(entry)
 
-            if pub_date_parsed is None:
-                pub_date_parsed = timezone.now().timetuple()
-                pub_date_str = f"Fetched {timezone.now().strftime('%Y-%m-%d %H:%M')}"
+            content = ""
+            if "content" in entry:
+                content = entry.content[0].value
+            elif "summary" in entry:
+                content = entry.summary
 
-            all_entries.append(
-                {
-                    "title": entry.get("title", "No title"),
-                    "link": entry.get("link", "#"),
-                    "image_url": image_url,
-                    "published": pub_date_str,
-                    "published_parsed": pub_date_parsed,
-                    "description": entry.get("description", entry.get("summary", "")),
-                    "source": source.title,
-                }
+            item, created = FeedItem.objects.get_or_create(
+                url=entry.get("link", "#"),
+                defaults={
+                    "source": source,
+                    "title": entry.title,
+                    "published_at": published_at,
+                    "author": entry.get("author", "Unknown"),
+                    "description": entry.get("summary", "No description"),
+                    "image_url": image_url or None,
+                    "content": content,
+                },
             )
+
+            if not created:
+                pass
+                # increment failed items
+
+            all_entries.append(item)
 
     if query != "":
         all_entries = filter_entries(all_entries, query)
-    all_entries.sort(key=lambda e: e["published_parsed"], reverse=True)
+    all_entries.sort(key=lambda e: e.published_at, reverse=True)
     paginator = Paginator(all_entries, per_page=10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)

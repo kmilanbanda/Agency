@@ -99,35 +99,6 @@ class BrokenFeedTest(TestCase):
             self.assertEqual(response.status_code, 200)
 
 
-class AbsentPubDateTest(TestCase):
-    def setUp(self):
-        self.source = FeedSource.objects.create(
-            title="No Pub Date", url="https://example.com/rss"
-        )
-
-        self.mock_entries = []
-        for i in range(5):
-            mock_entry = {
-                "title": f"Entry {i}",
-                "link": f"entry{i}",
-                "description": f"content{i}",
-                "published_parsed": None,
-                "updated_parsed": None,
-                "published": None,
-            }
-            self.mock_entries.append(mock_entry)
-
-        self.mock_feed = Mock()
-        self.mock_feed.bozo = 0
-        self.mock_feed.bozo_exception = None
-        self.mock_feed.entries = self.mock_entries
-
-    def test_absent_publish_date(self):
-        with patch("feed.views.feedparser.parse", return_value=self.mock_feed):
-            response = self.client.get(reverse("feed:reader"))
-            self.assertIsNotNone(response.context["entries"][0]["published_parsed"])
-
-
 class FeedSourceModelTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(

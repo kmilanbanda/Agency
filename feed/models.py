@@ -38,6 +38,46 @@ class FeedSource(models.Model):
         return self.title
 
 
+class FeedItem(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, blank=True)
+    content = models.TextField(blank=True)
+    author = models.CharField(max_length=200)
+    published_at = models.DateTimeField(null=True, blank=True)
+    fetched_at = models.DateTimeField(auto_now=True)
+    source = models.ForeignKey(
+        FeedSource, on_delete=models.CASCADE, related_name="source"
+    )
+    url = models.URLField(unique=True)
+    image_url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+
+class UserFeedItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
+    item = models.ForeignKey(FeedItem, on_delete=models.CASCADE, related_name="item")
+
+    is_read = models.BooleanField(default=False)
+    is_saved = models.BooleanField(default=False)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "item"],
+                name="unique_user_item",
+            )
+        ]
+
+    def __str__(self):
+        return (
+            self.user.title + "'s " + self.item.title
+            or "Error fetching UserFeedItem title"
+        )
+
+
 class Category(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="categories")
     title = models.CharField(max_length=200)
