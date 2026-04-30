@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Entry, FeedSource, Subscription
+from .models import Category, Entry, FeedItem, FeedSource, Subscription
 
 admin.site.register(FeedSource)
 
@@ -24,3 +24,9 @@ class UserFeedAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("title", "user", "created_at")
     list_filter = ("created_at",)
+
+
+@admin.register(FeedItem)
+class FeedItemAdmin(admin.ModelAdmin):
+    list_display = ("title", "slug", "published_at")
+    list_filter = ("published_at",)

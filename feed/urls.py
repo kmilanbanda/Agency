@@ -33,5 +33,5 @@ urlpatterns = [
         name="categorize_subscription",
     ),
     # entries
-    path("<slug:slug>/", views.entry_detail, name="entry_detail"),
+    path("<slug:slug>/", views.item_detail, name="item_detail"),
 ]

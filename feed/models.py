@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class Entry(models.Model):
@@ -40,6 +41,11 @@ class FeedSource(models.Model):
 
 class FeedItem(models.Model):
     title = models.CharField(max_length=200)
+    slug = models.SlugField(
+        max_length=200,
+        unique=True,
+        help_text="Auto-generated from title",
+    )
     description = models.CharField(max_length=200, blank=True)
     content = models.TextField(blank=True)
     author = models.CharField(max_length=200)
@@ -51,8 +57,24 @@ class FeedItem(models.Model):
     url = models.URLField(unique=True)
     image_url = models.URLField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            count = 2
+
+            while FeedItem.objects.filter(slug=slug).exists():
+                slug = f"({base_slug}-{count}"
+                count += 1
+
+            self.slug = slug
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("feed:item_detail", kwargs={"slug": self.slug})
 
 
 class UserFeedItem(models.Model):

@@ -30,6 +30,15 @@ def entry_detail(request, slug):
     return render(request, "feed/entry_detail.html", context)
 
 
+def item_detail(request, slug):
+    item = get_object_or_404(FeedItem, slug=slug)
+    context = {
+        "item": item,
+        "title": item.title,
+    }
+    return render(request, "feed/item_detail.html", context)
+
+
 def reader(request):
     sources = FeedSource.objects.all()
     if request.user.is_authenticated:
