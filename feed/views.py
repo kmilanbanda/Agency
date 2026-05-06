@@ -60,7 +60,6 @@ def reader(request):
     source_limit = 10
     query = request.GET.get("q", "").strip()
 
-    failed_item_count = 0
     for source in sources:
         feed = feedparser.parse(source.url)
         if feed.bozo:
@@ -81,7 +80,7 @@ def reader(request):
             elif "summary" in entry:
                 content = entry.summary
 
-            item, created = FeedItem.objects.get_or_create(
+            item, _ = FeedItem.objects.get_or_create(
                 url=entry.get("link", "#"),
                 defaults={
                     "source": source,
@@ -94,10 +93,8 @@ def reader(request):
                 },
             )
 
-            if not created:
-                failed_item_count += 1
-            else:
-                _, created = UserFeedItem.objects.get_or_create(
+            if request.user.is_authenticated:
+                _, _ = UserFeedItem.objects.get_or_create(
                     user=request.user,
                     item=item,
                 )
@@ -109,11 +106,6 @@ def reader(request):
     paginator = Paginator(all_entries, per_page=10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
-
-    messages.success(
-        request,
-        f"Skipped {failed_item_count} failed items.",
-    )
 
     return render(
         request,
