@@ -19,8 +19,16 @@
 
     <div class="content">
         {{ item.content|linebreaks }}
-        <!-- |linebreaks turns newlines into <p> or <br> tags -->
     </div>
-    
-    <a href="{% url 'feed:home' %}" class="back-link">← Back to Home</a>
+   
+    <div>
+        <form method="post" action="{% url 'feed:item_detail' slug=item.slug %}">
+            {% csrf_token %}
+            <button type="submit" name="save">
+                Save
+            </button>
+        </form>
+    </div>
+
+    <a href="{% url 'feed:reader' %}" class="back-link">← Back to Reader</a>
 {% endblock %}

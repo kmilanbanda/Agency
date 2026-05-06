@@ -95,7 +95,7 @@ class UserFeedItem(models.Model):
 
     def __str__(self):
         return (
-            self.user.title + "'s " + self.item.title
+            self.user.username + "'s " + self.item.title
             or "Error fetching UserFeedItem title"
         )
 

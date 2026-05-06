@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import AddFeedForm, CategorizeForm
-from .models import Category, Entry, FeedItem, FeedSource, Subscription
+from .models import Category, Entry, FeedItem, FeedSource, Subscription, UserFeedItem
 
 
 def home(request):
@@ -36,7 +36,20 @@ def item_detail(request, slug):
         "item": item,
         "title": item.title,
     }
-    return render(request, "feed/item_detail.html", context)
+
+    if request.user.is_authenticated:
+        user_item = get_object_or_404(UserFeedItem, user=request.user, item=item)
+        user_item.is_read = True
+        user_item.viewed_at = timezone.now()
+        user_item.save()
+
+    if request.method == "GET":
+        return render(request, "feed/item_detail.html", context)
+    elif request.method == "POST":
+        user_item.is_saved = not user_item.is_saved
+        user_item.save()
+
+    return redirect(request.path)
 
 
 def reader(request):
@@ -47,6 +60,7 @@ def reader(request):
     source_limit = 10
     query = request.GET.get("q", "").strip()
 
+    failed_item_count = 0
     for source in sources:
         feed = feedparser.parse(source.url)
         if feed.bozo:
@@ -81,9 +95,12 @@ def reader(request):
             )
 
             if not created:
-                pass
-                # increment failed items
-
+                failed_item_count += 1
+            else:
+                _, created = UserFeedItem.objects.get_or_create(
+                    user=request.user,
+                    item=item,
+                )
             all_entries.append(item)
 
     if query != "":
@@ -92,6 +109,12 @@ def reader(request):
     paginator = Paginator(all_entries, per_page=10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
+
+    messages.success(
+        request,
+        f"Skipped {failed_item_count} failed items.",
+    )
+
     return render(
         request,
         "feed/reader.html",
@@ -354,3 +377,13 @@ def categorize_subscription(request, subscription_id):
         messages.error(request, "Invalid category selection")
 
     return redirect("feed:feeds")
+
+
+@login_required
+def toggle_item_is_saved(request, item_id):
+    user_item = get_object_or_404(UserFeedItem, user=request.user, item=item_id)
+
+    if request.method == "POST":
+        user_item.is_saved = not user_item.is_saved
+
+    return

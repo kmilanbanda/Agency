@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Entry, FeedItem, FeedSource, Subscription
+from .models import Category, Entry, FeedItem, FeedSource, Subscription, UserFeedItem
 
 admin.site.register(FeedSource)
 
@@ -30,3 +30,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class FeedItemAdmin(admin.ModelAdmin):
     list_display = ("title", "slug", "published_at")
     list_filter = ("published_at",)
+
+
+@admin.register(UserFeedItem)
+class UserFeedItemAdmin(admin.ModelAdmin):
+    list_display = ("user", "item", "is_read", "is_saved", "viewed_at")
+    list_filter = ("viewed_at",)
