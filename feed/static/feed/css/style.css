@@ -40,6 +40,12 @@ h1, h2, h3 {
     margin-bottom: 40px;
 }
 
+.topbar-link {
+    color: var(--heading);
+    border-bottom: 1px solid var(--border);
+    padding: 1px 10px;
+}  
+
 .back-link {
     display: inline-block;
     margin-top: 30px;
@@ -127,6 +133,16 @@ body {
     min-height: 100vh;
 }
 
+.topbar {
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    padding: 12px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
 .sidebar {
     width: 280px;
     background-color: var(--bg);
@@ -144,21 +160,6 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.top-bar {
-    height: 64px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--heading);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.dark .top-bar {
-    background: var(--bg);
-    border-bottom-color: var(--heading);
 }
 
 /* Active link highlighting */

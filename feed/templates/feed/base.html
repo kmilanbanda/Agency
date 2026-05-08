@@ -16,25 +16,32 @@
     <title>{% block title %}Agency{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'feed/css/style.css' %}">    
-    <link rel="alternate" type="application/rss+xml" title="Agency RSS" href="{% url 'feed:rss_feed' %}">
 </head>
 
 <body>
-    <div class="layout">
+    <!--- Topbar -->
+    <aside class="topbar">
+        <button id="theme-toggle" aria-label="Toggle dark mode">
+            <span class="light-icon">☀️</span>
+            <span class="dark-icon" style="display:none;">🌙</span>
+        </button>
         
+        <!--- Frontpage -->
+        <a href="{% url 'feed:home' %}" class="topbar-link">Frontpage</a>
+        <!--- Feed -->
+        <a href="{% url 'feed:reader' %}" class="topbar-link">Feed</a>
+        <!--- Digest -->
+        <a href="{% url 'feed:reader' %}" class="topbar-link">Digest</a>
+        <!--- Discover -->
+        <a href="{% url 'feed:reader' %}" class="topbar-link">Discover</a>
+    </aside>
+
+
+    <div class="layout">
         <!--- Sidebar -->
         <aside class="sidebar">
-            <button id="theme-toggle" aria-label="Toggle dark mode">
-                <span class="light-icon">☀️</span>
-                <span class="dark-icon" style="display:none;">🌙</span>
-            </button>
-
-            <h1>Navigation</h1>
+            <h1>Categories</h1>
             <nav>
-                <a href="{% url 'feed:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a><br> 
-                <a href="{% url 'feed:reader' %}" class="{% if request.resolver_match.url_name == 'reader' %}active{% endif %}">Reader</a><br>
-                <a href="{% url 'feed:feeds' %}" class="{% if request.resolver_match.url_name == 'feeds' %}active{% endif %}">Feeds</a><br>
-                <a href="{% url 'feed:rss_feed' %}">RSS</a><br>
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'feed:logout' %}" style="display: inline;">
                         {% csrf_token %}

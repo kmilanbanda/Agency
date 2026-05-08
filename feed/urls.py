@@ -1,14 +1,13 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from . import feeds, views
+from . import views
 
 app_name = "feed"
 
 urlpatterns = [
     # home, rss and rss reader
     path("", views.home, name="home"),
-    path("rss/", feeds.LatestEntriesFeed(), name="rss_feed"),
     path("reader/", views.reader, name="reader"),
     # user login/logout/register
     path(
