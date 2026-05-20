@@ -54,8 +54,19 @@ def item_detail(request, slug):
 
 def reader(request):
     sources = FeedSource.objects.all()
+    categories = []
+    category_slug = request.GET.get("category")
+
     if request.user.is_authenticated:
-        sources = FeedSource.objects.filter(subscriptions__user=request.user)
+        if category_slug:
+            sources = FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__category__slug=category_slug,
+            )
+        else:
+            sources = FeedSource.objects.filter(subscriptions__user=request.user)
+        categories = Category.objects.filter(user=request.user)
+
     all_entries = []
     source_limit = 10
     query = request.GET.get("q", "").strip()
@@ -107,13 +118,16 @@ def reader(request):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
+    context = {
+        "page_obj": page_obj,
+        "entries": page_obj.object_list,
+        "categories": categories,
+    }
+
     return render(
         request,
         "feed/reader.html",
-        {
-            "page_obj": page_obj,
-            "entries": page_obj.object_list,
-        },
+        context,
     )
 
 

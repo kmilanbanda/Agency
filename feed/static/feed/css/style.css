@@ -94,6 +94,10 @@ h1, h2, h3 {
     font-size: 0.85em;
 }
 
+.sidebar-list {
+    list-style-type: none;
+}
+
 a {
     color: var(--link);          
     text-decoration: none; 

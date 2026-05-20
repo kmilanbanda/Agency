@@ -22,7 +22,7 @@ class UserFeedAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("title", "user", "created_at")
+    list_display = ("title", "user", "created_at", "slug")
     list_filter = ("created_at",)
 
 

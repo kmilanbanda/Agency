@@ -2,49 +2,68 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-    <h1>Your Feed</h1>
-{% else %}
-    <h1>Agency's Feed</h1>
-{% endif %}
+<div style="display: flex;">
+    <!-- Sidebar -->
+    <aside class=sidebar>
+        <h1>Categories</h1><br>
+        {% if categories %}
+        <ul>
+            {% for category in categories %}
+                <li class="sidebar-list">
+                    <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a></h2>
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <h1>Saved</h1>
+    </aside>
 
-<form method="get" action="{% url 'feed:reader' %}">
-    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search titles and descriptions...">
-    <button type="submit">Search</button>
-</form>
+    <!-- main content -->
+    <div>
+    {% if user.is_authenticated %}
+        <h1>Your Feed</h1>
+    {% else %}
+        <h1>Agency's Feed</h1>
+    {% endif %}
 
-{% if request.GET.q %}
-    <p>Showing results for: <strong>{{ request.GET.q }}</strong></p>
-{% endif %}
+    <form method="get" action="{% url 'feed:reader' %}">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search titles and descriptions...">
+        <button type="submit">Search</button>
+    </form>
 
-{% if entries %}
-    <ul>
-        {% for entry in page_obj %}
-            <li class="entry-item" tabindex="0">
-                <h3><a href="{% url 'feed:item_detail' slug=entry.slug %}" target="_blank">{{ entry.title }}</a></h3>
-                {% if entry.image_url %}
-                <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">
-                {% endif %}<br>
-                <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }}</small>
-                <p>{{ entry.description|safe|truncatewords:50 }}</p>
-            </li>
-        {% endfor %}
-        <small>
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
-            {% endif %}
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
-            {% endif %}
-        </small>  
-    </ul>
-{% else %}
-    <p>No feeds added yet!</p>
-{% endif %}
+    {% if request.GET.q %}
+        <p>Showing results for: <strong>{{ request.GET.q }}</strong></p>
+    {% endif %}
 
-{% if not user.is_authenticated %}
-    <p><a href="{% url 'feed:login' %}">Login</a> or <a href="{% url 'feed:register' %}">Register</a> to personalize your feed!</p>
-{% endif %}
+    {% if entries %}
+        <ul>
+            {% for entry in page_obj %}
+                <li class="entry-item" tabindex="0">
+                    <h3><a href="{% url 'feed:item_detail' slug=entry.slug %}" target="_blank">{{ entry.title }}</a></h3>
+                    {% if entry.image_url %}
+                    <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">
+                    {% endif %}<br>
+                    <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }}</small>
+                    <p>{{ entry.description|safe|truncatewords:50 }}</p>
+                </li>
+            {% endfor %}
+            <small>
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
+                {% endif %}
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
+                {% endif %}
+            </small>  
+        </ul>
+    {% else %}
+        <p>No feeds added yet!</p>
+    {% endif %}
 
+    {% if not user.is_authenticated %}
+        <p><a href="{% url 'feed:login' %}">Login</a> or <a href="{% url 'feed:register' %}">Register</a> to personalize your feed!</p>
+    {% endif %}
+    </div>
+</div>
 {% endblock %}
