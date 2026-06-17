@@ -8,9 +8,16 @@
         <h1>Categories</h1><br>
         {% if categories %}
         <ul>
-            {% for category in categories %}
+            {% for category, sources in categories %}
                 <li class="sidebar-list">
                     <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a></h2>
+                    <ul>
+                        {% for source in sources %}
+                            <li class="sidebar-list">
+                                <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a></h3>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </li>
             {% endfor %}
         </ul>

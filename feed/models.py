@@ -32,8 +32,12 @@ class FeedSource(models.Model):
     title = models.CharField(max_length=200)
     url = models.URLField(unique=True)
     site_url = models.URLField(blank=True)  # optional main site link
+    slug = models.SlugField(blank=True, null=True)
     last_fetched = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "sources"
 
     def __str__(self):
         return self.title
@@ -117,6 +121,13 @@ class Category(models.Model):
                 name="unique_user_title_parent_category",
             )
         ]
+
+    def save(self, *args, **kwargs):
+        print(self.slug)
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title or f"Category {self.id}"

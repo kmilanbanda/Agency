@@ -2,7 +2,11 @@ from django.contrib import admin
 
 from .models import Category, Entry, FeedItem, FeedSource, Subscription, UserFeedItem
 
-admin.site.register(FeedSource)
+
+@admin.register(FeedSource)
+class FeedSource(admin.ModelAdmin):
+    list_display = ("title", "url", "site_url", "slug", "last_fetched", "created")
+    list_filter = ("title",)
 
 
 @admin.register(Entry)

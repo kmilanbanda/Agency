@@ -54,8 +54,9 @@ def item_detail(request, slug):
 
 def reader(request):
     sources = FeedSource.objects.all()
-    categories = []
+    categories_list = []
     category_slug = request.GET.get("category")
+    feed_slug = request.GET.get("feed")
 
     if request.user.is_authenticated:
         if category_slug:
@@ -63,9 +64,23 @@ def reader(request):
                 subscriptions__user=request.user,
                 subscriptions__category__slug=category_slug,
             )
+        elif feed_slug:
+            sources = FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__feed__slug=feed_slug,
+            )
         else:
             sources = FeedSource.objects.filter(subscriptions__user=request.user)
-        categories = Category.objects.filter(user=request.user)
+
+        categories_with_sources = []
+        categories_list = Category.objects.filter(user=request.user)
+        for category in categories_list:
+            category_sources = FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__category=category,
+            ).distinct()
+
+            categories_with_sources.append((category, category_sources))
 
     all_entries = []
     source_limit = 10
@@ -121,7 +136,7 @@ def reader(request):
     context = {
         "page_obj": page_obj,
         "entries": page_obj.object_list,
-        "categories": categories,
+        "categories": categories_with_sources,
     }
 
     return render(
@@ -372,6 +387,7 @@ def categorize_subscription(request, subscription_id):
                 category, _ = Category.objects.get_or_create(
                     user=request.user, title=category_name
                 )
+                category.save()
             else:
                 category = form.cleaned_data["category"]
 
