@@ -55,6 +55,7 @@ def item_detail(request, slug):
 def reader(request):
     sources = FeedSource.objects.all()
     categories_list = []
+    categories_with_sources = []
     category_slug = request.GET.get("category")
     feed_slug = request.GET.get("feed")
 
@@ -72,7 +73,6 @@ def reader(request):
         else:
             sources = FeedSource.objects.filter(subscriptions__user=request.user)
 
-        categories_with_sources = []
         categories_list = Category.objects.filter(user=request.user)
         for category in categories_list:
             category_sources = FeedSource.objects.filter(
