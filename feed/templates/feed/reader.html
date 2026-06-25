@@ -6,15 +6,16 @@
     <!-- Sidebar -->
     <aside class=sidebar>
         <h1>Categories</h1><br>
+        <h2><a href="{% url 'feed:reader' %}">View All</a></h2><br>
         {% if categories %}
         <ul>
             {% for category, sources in categories %}
                 <li class="sidebar-list">
-                    <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a></h2>
+                    <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> #UNREAD </h2>
                     <ul>
                         {% for source in sources %}
                             <li class="sidebar-list">
-                                <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a></h3>
+                                <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> #UNREAD </h3>
                             </li>
                         {% endfor %}
                     </ul>
@@ -50,7 +51,7 @@
                     {% if entry.image_url %}
                     <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">
                     {% endif %}<br>
-                    <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }}</small>
+                    <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }} | {{ entry.category }}</small>
                     <p>{{ entry.description|safe|truncatewords:50 }}</p>
                 </li>
             {% endfor %}

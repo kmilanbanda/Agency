@@ -8,6 +8,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -54,9 +55,27 @@ def item_detail(request, slug):
 
 def reader(request):
     sources = FeedSource.objects.all()
+
+    if request.user.is_authenticated:
+        subscriptions = (
+            Subscription.objects.filter(user=request.user)
+            .select_related("category")
+            .annotate(
+                unread_count=Count(
+                    "feed__items__user_items",
+                    filter=Q(
+                        feed__items__user_items__user=request.user,
+                        feed__items__user_items__is_read=False,
+                    ),
+                )
+            )
+        )
+        subscription_lookup = {sub.feed.id: sub for sub in subscriptions}
+
     categories_list = []
     categories_with_sources = []
     category_slug = request.GET.get("category")
+
     feed_slug = request.GET.get("feed")
 
     if request.user.is_authenticated:
@@ -73,7 +92,15 @@ def reader(request):
         else:
             sources = FeedSource.objects.filter(subscriptions__user=request.user)
 
-        categories_list = Category.objects.filter(user=request.user)
+        categories_list = Category.objects.filter(user=request.user).annotate(
+            unread_count=Count(
+                "subscriptions__feed__items__user_items",
+                filter=Q(
+                    subscriptions__feed__items__user_items__user=request.user,
+                    subscriptions__feed__items__user_items__is_read=False,
+                ),
+            )
+        )
         for category in categories_list:
             category_sources = FeedSource.objects.filter(
                 subscriptions__user=request.user,
@@ -118,6 +145,8 @@ def reader(request):
                     "content": content,
                 },
             )
+            if request.user.is_authenticated:
+                item.category = subscription_lookup[source.id].category
 
             if request.user.is_authenticated:
                 _, _ = UserFeedItem.objects.get_or_create(

@@ -56,7 +56,7 @@ class FeedItem(models.Model):
     published_at = models.DateTimeField(null=True, blank=True)
     fetched_at = models.DateTimeField(auto_now=True)
     source = models.ForeignKey(
-        FeedSource, on_delete=models.CASCADE, related_name="source"
+        FeedSource, on_delete=models.CASCADE, related_name="items"
     )
     url = models.URLField(unique=True)
     image_url = models.URLField(blank=True, null=True)
@@ -82,8 +82,10 @@ class FeedItem(models.Model):
 
 
 class UserFeedItem(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
-    item = models.ForeignKey(FeedItem, on_delete=models.CASCADE, related_name="item")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_items")
+    item = models.ForeignKey(
+        FeedItem, on_delete=models.CASCADE, related_name="user_items"
+    )
 
     is_read = models.BooleanField(default=False)
     is_saved = models.BooleanField(default=False)
@@ -109,7 +111,11 @@ class Category(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, blank=True)
     parent = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="subcategories",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
