@@ -84,11 +84,13 @@ def reader(request):
                 subscriptions__user=request.user,
                 subscriptions__category__slug=category_slug,
             )
+
         elif feed_slug:
             sources = FeedSource.objects.filter(
                 subscriptions__user=request.user,
                 subscriptions__feed__slug=feed_slug,
             )
+
         else:
             sources = FeedSource.objects.filter(subscriptions__user=request.user)
 
@@ -102,10 +104,22 @@ def reader(request):
             )
         )
         for category in categories_list:
-            category_sources = FeedSource.objects.filter(
-                subscriptions__user=request.user,
-                subscriptions__category=category,
-            ).distinct()
+            category_sources = (
+                FeedSource.objects.filter(
+                    subscriptions__user=request.user,
+                    subscriptions__category=category,
+                )
+                .distinct()
+                .annotate(
+                    unread_count=Count(
+                        "items__user_items",
+                        filter=Q(
+                            items__user_items__user=request.user,
+                            items__user_items__is_read=False,
+                        ),
+                    )
+                )
+            )
 
             categories_with_sources.append((category, category_sources))
 
