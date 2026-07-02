@@ -72,56 +72,9 @@ def reader(request):
         )
         subscription_lookup = {sub.feed.id: sub for sub in subscriptions}
 
-    categories_list = []
     categories_with_sources = []
-    category_slug = request.GET.get("category")
-
-    feed_slug = request.GET.get("feed")
-
     if request.user.is_authenticated:
-        if category_slug:
-            sources = FeedSource.objects.filter(
-                subscriptions__user=request.user,
-                subscriptions__category__slug=category_slug,
-            )
-
-        elif feed_slug:
-            sources = FeedSource.objects.filter(
-                subscriptions__user=request.user,
-                subscriptions__feed__slug=feed_slug,
-            )
-
-        else:
-            sources = FeedSource.objects.filter(subscriptions__user=request.user)
-
-        categories_list = Category.objects.filter(user=request.user).annotate(
-            unread_count=Count(
-                "subscriptions__feed__items__user_items",
-                filter=Q(
-                    subscriptions__feed__items__user_items__user=request.user,
-                    subscriptions__feed__items__user_items__is_read=False,
-                ),
-            )
-        )
-        for category in categories_list:
-            category_sources = (
-                FeedSource.objects.filter(
-                    subscriptions__user=request.user,
-                    subscriptions__category=category,
-                )
-                .distinct()
-                .annotate(
-                    unread_count=Count(
-                        "items__user_items",
-                        filter=Q(
-                            items__user_items__user=request.user,
-                            items__user_items__is_read=False,
-                        ),
-                    )
-                )
-            )
-
-            categories_with_sources.append((category, category_sources))
+        categories_with_sources, sources = get_categories_with_sources(request)
 
     all_entries = []
     source_limit = 10
@@ -189,6 +142,58 @@ def reader(request):
     )
 
 
+@login_required
+def get_categories_with_sources(request):
+    categories_with_sources = []
+    category_slug = request.GET.get("category")
+    feed_slug = request.GET.get("feed")
+    if category_slug:
+        sources = FeedSource.objects.filter(
+            subscriptions__user=request.user,
+            subscriptions__category__slug=category_slug,
+        )
+
+    elif feed_slug:
+        sources = FeedSource.objects.filter(
+            subscriptions__user=request.user,
+            subscriptions__feed__slug=feed_slug,
+        )
+
+    else:
+        sources = FeedSource.objects.filter(subscriptions__user=request.user)
+
+    categories_list = Category.objects.filter(user=request.user).annotate(
+        unread_count=Count(
+            "subscriptions__feed__items__user_items",
+            filter=Q(
+                subscriptions__feed__items__user_items__user=request.user,
+                subscriptions__feed__items__user_items__is_read=False,
+            ),
+        )
+    )
+    for category in categories_list:
+        category_sources = (
+            FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__category=category,
+            )
+            .distinct()
+            .annotate(
+                unread_count=Count(
+                    "items__user_items",
+                    filter=Q(
+                        items__user_items__user=request.user,
+                        items__user_items__is_read=False,
+                    ),
+                )
+            )
+        )
+
+        categories_with_sources.append((category, category_sources))
+
+    return (categories_with_sources, sources)
+
+
 def get_image_url(entry):
     image_url = None
     if "media_content" in entry:
@@ -209,6 +214,32 @@ def filter_entries(entries, query):
             ),
             entries,
         )
+    )
+
+
+@login_required
+def saved(request):
+    saved_user_items = UserFeedItem.objects.filter(user=request.user).filter(
+        is_saved=True
+    )
+    items = FeedItem.objects.filter(user_items__in=saved_user_items)
+
+    categories_with_sources, _ = get_categories_with_sources(request)
+
+    paginator = Paginator(items, per_page=10)
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "entries": page_obj.object_list,
+        "categories": categories_with_sources,
+    }
+
+    return render(
+        request,
+        "feed/saved_items.html",
+        context,
     )
 
 

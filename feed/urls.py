@@ -9,6 +9,7 @@ urlpatterns = [
     # home, rss and rss reader
     path("", views.home, name="home"),
     path("reader/", views.reader, name="reader"),
+    path("reader/saved-items/", views.saved, name="saved"),
     # user login/logout/register
     path(
         "login/",
@@ -23,7 +24,7 @@ urlpatterns = [
         name="logout",
     ),
     path("register/", views.register, name="register"),
-    # feeds page
+    # feeds modify/opml page
     path("feeds/", views.feeds, name="feeds"),
     path("feeds/opml", views.opml, name="opml"),
     path(
