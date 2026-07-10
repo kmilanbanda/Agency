@@ -295,7 +295,10 @@ def feeds(request):
     categorized_subs = defaultdict(list)
 
     for sub in subscriptions:
-        categorized_subs[sub.category.title].append(sub)
+        if sub.category:
+            categorized_subs[sub.category.title].append(sub)
+        else:
+            categorized_subs["Uncategorized"].append(sub)
 
     user_categories = Category.objects.filter(user=request.user)
 

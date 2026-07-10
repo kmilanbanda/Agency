@@ -29,9 +29,9 @@
         <!--- Frontpage -->
         <a href="{% url 'feed:home' %}" class="topbar-link">Frontpage</a>
         <!--- Feed -->
-        <a href="{% url 'feed:reader' %}" class="topbar-link">Feed</a>
+        <a href="{% url 'feed:reader' %}" class="topbar-link">Reader</a>
         <!--- Digest -->
-        <a href="{% url 'feed:reader' %}" class="topbar-link">Digest</a>
+        <a href="{% url 'feed:feeds' %}" class="topbar-link">Feeds</a>
         <!--- Discover -->
         <a href="{% url 'feed:reader' %}" class="topbar-link">Discover</a>
         {% if user.is_authenticated %}
