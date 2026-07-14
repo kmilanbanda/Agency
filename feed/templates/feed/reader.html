@@ -10,11 +10,16 @@
         <details>
             {% if categories %}
             <summary>My Categories</summary>
-            <ul>
+            <ul class="category-tree">
                 {% for category, sources in categories %}
-                    <li class="sidebar-list">
+                <li class="category-item" data-category="{{ category.slug }}">
+                    <div class="category-header">
+                        <button class="toggle-btn" aria-expanded="false">
+                            ▶
+                        </button>
                         <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> {{ category.unread_count }} </h2>
-                        <ul>
+                    </div>
+                        <ul class="feed-list hidden">
                             {% for source in sources %}
                                 <li class="sidebar-list">
                                     <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
@@ -27,6 +32,8 @@
             {% endif %}
         </details>
         <h2><a href="{% url 'feed:saved' %}">Saved</a></h2>
+        {% load static %}
+        <script src="{% static 'feed/js/sidebar.js' %}"></script>
     </aside>
 
     <!-- main content -->
