@@ -20,7 +20,7 @@
                 </div>
                     <ul class="feed-list hidden">
                         {% for source in sources %}
-                            <li class="category-header" style="padding-left: .5rem;">
+                            <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
                                 <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
                             </li>
                         {% endfor %}
