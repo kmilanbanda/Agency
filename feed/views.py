@@ -238,7 +238,7 @@ def saved(request):
 
     return render(
         request,
-        "feed/saved_items.html",
+        "feed/reader.html",
         context,
     )
 

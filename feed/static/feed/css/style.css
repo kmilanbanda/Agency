@@ -26,8 +26,6 @@ html.dark {
 
 h1, h2, h3 {
     color: var(--heading);                
-    border-bottom: 2px solid var(--heading);
-    padding-bottom: 10px;
 }
 
 .meta, small, time, figcaption {
@@ -66,6 +64,7 @@ h1, h2, h3 {
 }
 
 .category-header {
+    color: var(--heading);
     display: flex;
     align-items: center;
     gap: .35rem;
@@ -99,6 +98,8 @@ h1, h2, h3 {
     cursor: pointer;
 
     font-size: 0.75rem;
+
+    color: var(--heading);
 }
 
 .toggle-btn:hover {
@@ -153,6 +154,10 @@ h1, h2, h3 {
 
 .sidebar-list {
     list-style-type: none;
+}
+
+.sidebar-list a {
+    color: inherit;
 }
 
 a {
