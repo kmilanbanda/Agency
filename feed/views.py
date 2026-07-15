@@ -275,17 +275,26 @@ def feeds(request):
 
         form = AddFeedForm(request.POST)
         if form.is_valid():
-            feed_source = form.save(commit=False)
+            feed_source, _ = FeedSource.objects.get_or_create(
+                url=form.cleaned_data["url"],
+                defaults={
+                    "title": form.cleaned_data["title"],
+                    "site_url": form.cleaned_data["site_url"],
+                },
+            )
 
-            existing = FeedSource.objects.filter(url=feed_source.url).first()
+            _, created = Subscription.objects.get_or_create(
+                user=request.user, feed=feed_source
+            )
 
-            if not existing:
-                feed_source.save()
-
-            Subscription.objects.get_or_create(user=request.user, feed=feed_source)
-
-            messages.success(request, f'Feed "{feed_source.title}" added successfully!')
+            if created:
+                messages.success(
+                    request, f'Successfully subscribed to "{feed_source.title}"!'
+                )
+            else:
+                messages.error(request, f'Failed to subscribe to "{feed_source.title}"')
             return redirect("feed:feeds")
+
     else:
         form = AddFeedForm()
 

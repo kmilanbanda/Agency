@@ -1,18 +1,19 @@
 from django import forms
 
-from .models import Category, FeedSource
+from .models import Category
 
 
-class AddFeedForm(forms.ModelForm):
-    class Meta:
-        model = FeedSource
-        fields = ["title", "url", "site_url"]
-        widgets = {
-            "url": forms.URLInput(
-                attrs={"placeholder": "https://example.com/feed.xml"}
-            ),
-            "title": forms.TextInput(attrs={"placeholder": "Feed Title"}),
-        }
+class AddFeedForm(forms.Form):
+    title = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Feed Title"}),
+    )
+
+    url = forms.URLField(
+        widget=forms.URLInput(attrs={"placeholder": "https://example.com/rss"})
+    )
+
+    site_url = forms.URLField(required=False)
 
     def clean_url(self):
         url = self.cleaned_data["url"]

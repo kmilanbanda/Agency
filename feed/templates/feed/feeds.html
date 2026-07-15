@@ -4,7 +4,7 @@
 <h1>Your Feed Subscriptions</h1>
 {% if user.is_authenticated %}
 
-    <div>
+    <div style="left-padding: .5rem">
         <h3>Import/Export OPML</h3>
         <form method="post" action="{% url 'feed:opml' %}" enctype="multipart/form-data" style="display: inline;">
             {% csrf_token %}
@@ -23,7 +23,7 @@
         </form>
     </div>
 
-    <div class="add-feed'form">
+    <div class="add-feed'form" style="left-padding: .5rem">
         <h3>Add New Feed</h3>
         <form method="post">
             {% csrf_token %}
