@@ -38,7 +38,7 @@
     {% if categorized_subs %}
         {% for category, subscriptions in categorized_items %}
             {% if subscriptions %}
-                <h3>{{ category.title }}</h3><br>
+                <h3>{{ category }}</h3>
                 <ul>
                     {% for subscription in subscriptions %}
                          <li>
