@@ -39,6 +39,12 @@ class FeedSource(models.Model):
     class Meta:
         verbose_name_plural = "sources"
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
@@ -129,7 +135,6 @@ class Category(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        print(self.slug)
         if not self.slug:
             self.slug = slugify(self.title)
 

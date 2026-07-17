@@ -11,21 +11,39 @@
         <h2>My Categories</h2>
         <ul class="category-tree">
             {% for category, sources in categories %}
-            <li class="category-item" data-category="{{ category.slug }}">
-                <div class="category-header">
-                    <button class="toggle-btn" aria-expanded="false">
-                        ▶
-                    </button>
-                    <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> {{ category.unread_count }} </h2>
-                </div>
-                    <ul class="feed-list hidden">
-                        {% for source in sources %}
-                            <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
-                                <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
+                {% if category %}
+                    <li class="category-item" data-category="{{ category.slug }}">
+                        <div class="category-header">
+                            <button class="toggle-btn" aria-expanded="false">
+                                ▶
+                            </button>
+                            <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> {{ category.unread_count }} </h2>
+                        </div>
+                        <ul class="feed-list hidden">
+                            {% for source in sources %}
+                                <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
+                                    <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="category-item" data-category="Uncategorized">
+                        <div class="category-header">
+                            <button class="toggle-btn" aria-expanded="false">
+                                ▶
+                            </button>
+                            <h2><a href="{% url 'feed:reader' %}?category=Uncategorized">Uncategorized</a></h2>
+                        </div>
+                        <ul class="feed-list hidden">
+                            {% for source in sources %}
+                                <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
+                                    <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
             {% endfor %}
         </ul>
         {% endif %}

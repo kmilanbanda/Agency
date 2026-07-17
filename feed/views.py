@@ -84,6 +84,8 @@ def reader(request):
         feed = feedparser.parse(source.url)
         if feed.bozo:
             continue
+        source.fetched_at = timezone.now()
+        source.save(update_fields=["last_fetched"])
 
         for entry in feed.entries[:source_limit]:
             published_parsed = entry.get("published_parse") or entry.get(
@@ -145,23 +147,8 @@ def reader(request):
 @login_required
 def get_categories_with_sources(request):
     categories_with_sources = []
-    category_slug = request.GET.get("category")
-    feed_slug = request.GET.get("feed")
-    if category_slug:
-        sources = FeedSource.objects.filter(
-            subscriptions__user=request.user,
-            subscriptions__category__slug=category_slug,
-        )
 
-    elif feed_slug:
-        sources = FeedSource.objects.filter(
-            subscriptions__user=request.user,
-            subscriptions__feed__slug=feed_slug,
-        )
-
-    else:
-        sources = FeedSource.objects.filter(subscriptions__user=request.user)
-
+    sources = FeedSource.objects.filter(subscriptions__user=request.user)
     categories_list = Category.objects.filter(user=request.user).annotate(
         unread_count=Count(
             "subscriptions__feed__items__user_items",
@@ -190,6 +177,44 @@ def get_categories_with_sources(request):
         )
 
         categories_with_sources.append((category, category_sources))
+
+    uncategorized_sources = (
+        FeedSource.objects.filter(
+            subscriptions__user=request.user,
+            subscriptions__category=None,
+        )
+    ).annotate(
+        unread_count=Count(
+            "items__user_items",
+            filter=Q(
+                items__user_items__user=request.user,
+                items__user_items__is_read=False,
+            ),
+        )
+    )
+
+    categories_with_sources.append((None, uncategorized_sources))
+
+    # filter out sources based on category or feed queries
+    category_slug = request.GET.get("category")
+    feed_slug = request.GET.get("feed")
+    if category_slug:
+        if category_slug != "Uncategorized":
+            sources = FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__category__slug=category_slug,
+            )
+        else:
+            sources = FeedSource.objects.filter(
+                subscriptions__user=request.user,
+                subscriptions__category=None,
+            )
+
+    elif feed_slug:
+        sources = FeedSource.objects.filter(
+            subscriptions__user=request.user,
+            subscriptions__feed__slug=feed_slug,
+        )
 
     return (categories_with_sources, sources)
 
