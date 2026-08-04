@@ -32,7 +32,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(FeedItem)
 class FeedItemAdmin(admin.ModelAdmin):
-    list_display = ("title", "slug", "published_at")
+    list_display = ("title", "slug", "published_at", "content_status")
     list_filter = ("published_at",)
 
 

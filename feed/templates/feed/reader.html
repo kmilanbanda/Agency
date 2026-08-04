@@ -75,7 +75,7 @@
                 <li class="entry-item" tabindex="0">
                     <h3><a href="{% url 'feed:item_detail' slug=entry.slug %}">{{ entry.title }}</a></h3>
                     {% if entry.image_url %}
-                    <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 300px;">
+                    <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 100px;">
                     {% endif %}<br>
                     <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }} | {{ entry.category }}</small>
                     <p>{{ entry.description|safe|truncatewords:50 }}</p>

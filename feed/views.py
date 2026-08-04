@@ -96,6 +96,7 @@ def reader(request):
                 published_at = datetime(*published_parsed[:6], tzinfo=UTC)
             image_url = get_image_url(entry)
 
+            # get content from item/entry
             content = ""
             if "content" in entry:
                 content = entry.content[0].value
@@ -234,8 +235,8 @@ def filter_entries(entries, query):
     return list(
         filter(
             lambda e: (
-                query.lower() in e["title"].lower()
-                or query.lower() in e["description"].lower()
+                query.lower() in e.title.lower()
+                or query.lower() in e.description.lower()
             ),
             entries,
         )

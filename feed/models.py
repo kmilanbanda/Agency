@@ -66,6 +66,16 @@ class FeedItem(models.Model):
     )
     url = models.URLField(unique=True)
     image_url = models.URLField(blank=True, null=True)
+    content_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("processing", "Processing"),
+            ("complete", "Complete"),
+            ("failed", "Failed"),
+        ],
+        default="pending",
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
