@@ -235,8 +235,8 @@ def filter_entries(entries, query):
     return list(
         filter(
             lambda e: (
-                query.lower() in e["title"].lower()
-                or query.lower() in e["description"].lower()
+                query.lower() in e.title.lower()
+                or query.lower() in e.description.lower()
             ),
             entries,
         )
