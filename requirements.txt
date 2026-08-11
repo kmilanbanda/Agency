@@ -21,6 +21,8 @@ lxml_html_clean==0.4.5
 nodeenv==1.10.0
 platformdirs==4.9.4
 pre_commit==4.5.1
+psycopg==3.3.4
+psycopg-binary==3.3.4
 python-dateutil==2.9.0.post0
 python-discovery==1.1.3
 python-dotenv==1.2.2

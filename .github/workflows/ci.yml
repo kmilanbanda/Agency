@@ -42,12 +42,22 @@ jobs:
     - name: Run migrations
       run: python manage.py migrate
       env:
-        DATABASE_URL: postgres://testuser:testpass@lockalhost:5432/testdb
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DB_NAME: testdb
+        DB_USER: testuser
+        DB_PASSWORD: testpass
+        DB_HOST: localhost
+        DB_PORT: 5432
       
     - name: Run tests with coverage
       run: coverage run manage.py test feed
       env:
-        DATABASE_URL: postgres://testuser:testpass@localhost:5432/testdb
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DB_NAME: testdb
+        DB_USER: testuser
+        DB_PASSWORD: testpass
+        DB_HOST: localhost
+        DB_PORT: 5432
 
     - name: Generate coverage report
       run: coverage report -m

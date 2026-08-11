@@ -52,11 +52,11 @@ class FeedSource(models.Model):
 class FeedItem(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(
-        max_length=200,
+        max_length=300,
         unique=True,
         help_text="Auto-generated from title",
     )
-    description = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=2048, blank=True)
     content = models.TextField(blank=True)
     author = models.CharField(max_length=200)
     published_at = models.DateTimeField(null=True, blank=True)
@@ -64,8 +64,8 @@ class FeedItem(models.Model):
     source = models.ForeignKey(
         FeedSource, on_delete=models.CASCADE, related_name="items"
     )
-    url = models.URLField(unique=True)
-    image_url = models.URLField(blank=True, null=True)
+    url = models.URLField(max_length=2048, unique=True)
+    image_url = models.URLField(max_length=2048, blank=True, null=True)
     content_status = models.CharField(
         max_length=20,
         choices=[

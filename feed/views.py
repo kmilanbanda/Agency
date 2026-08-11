@@ -103,14 +103,19 @@ def reader(request):
             elif "summary" in entry:
                 content = entry.summary
 
+            max_len_title = FeedItem._meta.get_field("title").max_length
+            max_len_author = FeedItem._meta.get_field("author").max_length
+            max_len_description = FeedItem._meta.get_field("description").max_length
             item, _ = FeedItem.objects.get_or_create(
                 url=entry.get("link", "#"),
                 defaults={
                     "source": source,
-                    "title": entry.title,
+                    "title": entry.title[:max_len_title],
                     "published_at": published_at,
-                    "author": entry.get("author", "Unknown"),
-                    "description": entry.get("summary", "No description"),
+                    "author": entry.get("author", "Unknown")[:max_len_author],
+                    "description": entry.get("summary", "No description")[
+                        :max_len_description
+                    ],
                     "image_url": image_url or None,
                     "content": content,
                 },
