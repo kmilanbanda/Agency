@@ -12,6 +12,7 @@ distlib==0.4.0
 Django==6.0.2
 feedparser==6.0.12
 filelock==3.25.2
+gunicorn==26.0.0
 htmldate==1.10.0
 identify==2.6.18
 idna==3.18
@@ -19,6 +20,7 @@ jusText==3.0.2
 lxml==6.1.1
 lxml_html_clean==0.4.5
 nodeenv==1.10.0
+packaging==26.3
 platformdirs==4.9.4
 pre_commit==4.5.1
 psycopg==3.3.4
