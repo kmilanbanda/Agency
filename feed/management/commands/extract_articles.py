@@ -38,6 +38,9 @@ class Command(BaseCommand):
                     continue
 
                 for item in items:
+                    item.content_status = "processing"
+                    item.save()
+
                     self.stdout.write(f"Processing: {item.title}")
 
                     try:
@@ -45,8 +48,8 @@ class Command(BaseCommand):
 
                     except Exception as e:
                         self.stderr.write(f"Failed {item.id}: {e}")
-
-                    self.process_article(item)
+                        item.content_status = "failed"
+                        item.save()
 
         except KeyboardInterrupt:
             self.stdout.write(
