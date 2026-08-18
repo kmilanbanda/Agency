@@ -2,13 +2,14 @@ import tempfile
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import Category, FeedItem, FeedSource, Subscription
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class FeedItemModelTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(
@@ -32,6 +33,7 @@ class FeedItemModelTest(TestCase):
         self.assertEqual(self.entry.get_absolute_url(), url)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class FeedItemDetailViewTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(
@@ -69,6 +71,7 @@ class FeedItemDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class BrokenFeedTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(
@@ -86,6 +89,7 @@ class BrokenFeedTest(TestCase):
             self.assertEqual(response.status_code, 200)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class FeedSourceModelTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(
@@ -96,6 +100,7 @@ class FeedSourceModelTest(TestCase):
         self.assertEqual(str(self.source), "Test Feed")
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class ReaderViewTest(TestCase):
     def setUp(self):
         self.source = FeedSource.objects.create(
@@ -112,6 +117,7 @@ class ReaderViewTest(TestCase):
         self.assertContains(response, "<li")
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class UserTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -127,6 +133,7 @@ class UserTest(TestCase):
         self.assertContains(response, "add-feed")
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class RegisterTest(TestCase):
     def setUp(self):
         self.form_data = {
@@ -146,6 +153,7 @@ class RegisterTest(TestCase):
         self.assertTemplateUsed(response, "feed/register.html")
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class AddDeleteFeedTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -190,6 +198,7 @@ class AddDeleteFeedTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class OPMLTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="username", password="password")
@@ -247,6 +256,7 @@ class OPMLTest(TestCase):
         self.assertIn("https://example.com/test.xml", content)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class CategorizationTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="username", password="password")
