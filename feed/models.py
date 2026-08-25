@@ -84,7 +84,7 @@ class FeedItem(models.Model):
             count = 2
 
             while FeedItem.objects.filter(slug=slug).exists():
-                slug = f"({base_slug}-{count}"
+                slug = f"{base_slug}-{count}"
                 count += 1
 
             self.slug = slug
