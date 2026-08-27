@@ -4,7 +4,8 @@
 
 <div style="display: flex;">
     <!-- Sidebar -->
-    <aside class=sidebar>
+    
+    <aside id="sidebar" class="sidebar">
         <h1>Categories</h1><br>
         <h2><a href="{% url 'feed:reader' %}">Clear Filters</a></h2><br>
         {% if categories %}
@@ -51,6 +52,8 @@
         {% load static %}
         <script src="{% static 'feed/js/sidebar.js' %}"></script>
     </aside>
+
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <!-- main content -->
     <div>

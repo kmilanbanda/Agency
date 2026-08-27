@@ -33,4 +33,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
     });
+
+    const menuButton = document.getElementById("menu-button");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    
+    if (menuButton && sidebar && overlay) {
+        menuButton.addEventListener("click", () => {
+            console.log("clicked");
+            sidebar.classList.toggle("open");
+            overlay.classList.toggle("show");
+        });
+
+        overlay.addEventListener("click", () => {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+        });
+
+        sidebar.querySelectorAll("a").forEach(link => {
+            link.addEventListener("click", () => {
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+            });
+        });
+    }
 });

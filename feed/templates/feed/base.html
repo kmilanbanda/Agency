@@ -21,6 +21,9 @@
 <body>
     <!--- Topbar -->
     <aside class="topbar">
+        <button id="menu-button" class="menu-button">
+            ☰
+        </button>
         <button id="theme-toggle" aria-label="Toggle dark mode">
             <span class="light-icon">☀️</span>
             <span class="dark-icon" style="display:none;">🌙</span>
@@ -32,8 +35,6 @@
         <a href="{% url 'feed:reader' %}" class="topbar-link">Reader</a>
         <!--- Digest -->
         <a href="{% url 'feed:feeds' %}" class="topbar-link">Feeds</a>
-        <!--- Discover -->
-        <a href="{% url 'feed:reader' %}" class="topbar-link">Discover</a>
         {% if user.is_authenticated %}
             <form method="post" action="{% url 'feed:logout' %}" style="display: inline;">
                 {% csrf_token %}
