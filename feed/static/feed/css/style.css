@@ -366,6 +366,10 @@ html.dark .sidebar nav a.active {
     .menu-button {
         display: block;
     }
+
+    .layout {
+        padding: 0 10px;
+    }
 }
 
 
