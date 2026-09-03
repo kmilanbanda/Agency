@@ -2,11 +2,12 @@ import tempfile
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from .models import Category, FeedItem, FeedSource, Subscription
+from .views import get_categories_with_sources
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -303,3 +304,96 @@ class CategorizationTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(updated_subscription.category.title, new_category_name)
+
+
+class GetCategoriesWithSourcesTest(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.user = User.objects.create_user(username="username", password="password")
+        self.client.login(username="username", password="password")
+        feed1 = FeedSource.objects.create(
+            title="Test Feed 1", url="https://example1.com/test.xml"
+        )
+        feed2 = FeedSource.objects.create(
+            title="Test Feed 2", url="https://example2.com/test.xml"
+        )
+        feed3 = FeedSource.objects.create(
+            title="Test Feed 3", url="https://example3.com/test.xml"
+        )
+        feed4 = FeedSource.objects.create(
+            title="Uncategorized Test Feed", url="https://example4.com/test.xml"
+        )
+
+        self.category1 = Category.objects.create(user=self.user, title="category1")
+        self.category2 = Category.objects.create(user=self.user, title="category2")
+
+        self.subscription1 = Subscription.objects.create(
+            user=self.user, feed=feed1, category=self.category1
+        )
+        self.subscription2 = Subscription.objects.create(
+            user=self.user, feed=feed2, category=self.category1
+        )
+        self.subscription3 = Subscription.objects.create(
+            user=self.user, feed=feed3, category=self.category2
+        )
+        self.subscription4 = Subscription.objects.create(user=self.user, feed=feed4)
+
+    def test_get_categories_with_sources(self):
+        request = self.factory.get("/")
+
+        request.user = self.user
+
+        categories_with_sources, sources = get_categories_with_sources(request)
+
+        test_sources_object = FeedSource.objects.filter(
+            subscriptions__user=request.user
+        )
+        test_categories_with_sources_object = []
+        test_categories_with_sources_object.append(
+            (
+                self.category1,
+                FeedSource.objects.filter(
+                    subscriptions__user=request.user,
+                    subscriptions__category=self.category1,
+                ),
+            )
+        )
+        test_categories_with_sources_object.append(
+            (
+                self.category2,
+                FeedSource.objects.filter(
+                    subscriptions__user=request.user,
+                    subscriptions__category=self.category2,
+                ),
+            )
+        )
+        test_categories_with_sources_object.append(
+            (
+                None,
+                FeedSource.objects.filter(
+                    subscriptions__user=request.user, subscriptions__category=None
+                ),
+            )
+        )
+
+        self.assertCountEqual(
+            list(test_sources_object.values_list("id", flat=True)),
+            list(sources.values_list("id", flat=True)),
+        )
+
+        def normalize_categories_with_sources_object(obj):
+            return [
+                (
+                    category.id if category else None,
+                    list(feed_ids.values_list("id", flat=True)),
+                )
+                for category, feed_ids in obj
+            ]
+
+        self.assertCountEqual(
+            normalize_categories_with_sources_object(
+                test_categories_with_sources_object
+            ),
+            normalize_categories_with_sources_object(categories_with_sources),
+        )
