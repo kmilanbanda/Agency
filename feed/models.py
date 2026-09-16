@@ -76,6 +76,18 @@ class FeedItem(models.Model):
         ],
         default="pending",
     )
+    ai_summary = models.TextField(blank=True)
+    ai_tags = models.JSONField(default=list, blank=True)
+    ai_status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("processing", "Processing"),
+            ("complete", "Complete"),
+            ("failed", "Failed"),
+        ],
+        default="pending",
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:

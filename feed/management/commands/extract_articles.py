@@ -57,7 +57,6 @@ class Command(BaseCommand):
             )
 
     def process_article(self, item):
-        pass
         # Download the content
         headers = {"User-Agent": "AgencyRSSReader"}
 
