@@ -6,7 +6,7 @@ class AIProviderError(AIError):
     pass
 
 
-class AIRateLimitError(AIError):
+class AIRateLimitError(AIProviderError):
     pass
 
 

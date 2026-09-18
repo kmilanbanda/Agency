@@ -3,6 +3,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
+from feed.ai.service import AIService
 from feed.models import FeedItem
 
 
@@ -27,6 +28,7 @@ class Command(BaseCommand):
 
         try:
             limit = options["limit"]
+            self.ai_service = AIService()
             while not self.shutdown:
                 items = FeedItem.objects.filter(ai_status="pending")[:limit]
 
@@ -37,7 +39,7 @@ class Command(BaseCommand):
                 for item in items:
                     self.stdout.write(f"Processing AI Summary: {item.title}")
                     try:
-                        self.process_ai_embedding(item)
+                        self.process_ai_summary(item)
 
                     except Exception as e:
                         self.stderr.write(f"Failed {item.id}: {e}")
@@ -49,17 +51,16 @@ class Command(BaseCommand):
                 self.style.WARNING("Worker shut down by keyboard interrupt.")
             )
 
-    def process_ai_embedding(self, item):
+    def process_ai_summary(self, item):
         # claim an article
         item.ai_status = "processing"
         item.save()
 
         # get ai metadata and summary
-        summary = "[MOCK] AI-generated summary"
-        tags = ["python", "django", "rss"]
+        result = self.ai_service.summarize_article(item)
 
         # update item and save
-        item.ai_summary = summary
-        item.ai_tags = tags
+        item.ai_summary = result["summary"]
+        item.ai_tags = result["tags"]
         item.ai_status = "complete"
         item.save()
