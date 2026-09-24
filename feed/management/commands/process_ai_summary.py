@@ -30,7 +30,10 @@ class Command(BaseCommand):
             limit = options["limit"]
             self.ai_service = AIService()
             while not self.shutdown:
-                items = FeedItem.objects.filter(ai_status="pending")[:limit]
+                items = FeedItem.objects.filter(
+                    content_status="complete",
+                    ai_status="pending",
+                )[:limit]
 
                 if not items:
                     time.sleep(5)
@@ -44,7 +47,7 @@ class Command(BaseCommand):
                     except Exception as e:
                         self.stderr.write(f"Failed {item.id}: {e}")
                         item.ai_status = "failed"
-                        item.save()
+                        item.save(update_fields=["ai_status"])
 
         except KeyboardInterrupt:
             self.stdout.write(
@@ -53,8 +56,13 @@ class Command(BaseCommand):
 
     def process_ai_summary(self, item):
         # claim an article
-        item.ai_status = "processing"
-        item.save()
+        updated = FeedItem.objects.filter(
+            pk=item.pk,
+            ai_status="pending",
+        ).update(ai_status="processing")
+
+        if updated == 0:
+            return
 
         # get ai metadata and summary
         result = self.ai_service.summarize_article(item)
@@ -63,4 +71,4 @@ class Command(BaseCommand):
         item.ai_summary = result["summary"]
         item.ai_tags = result["tags"]
         item.ai_status = "complete"
-        item.save()
+        item.save(update_fields=["ai_summary", "ai_tags", "ai_status"])
