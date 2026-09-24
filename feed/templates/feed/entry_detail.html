@@ -11,7 +11,39 @@
             • Last updated: {{ entry.updated|date:"F d, Y" }}
         {% endif %}
     </div>
-    
+
+    {% if item.ai_status == "complete" %}    
+
+        <div class="ai-summary">
+            
+            <h2>AI Summary</h2>
+            
+            <p>{{ item.ai_summary }}</p>
+            
+            {% if item.ai_tags %}
+            <div class="ai-tags">
+                {% for tag in item.ai_tags %}
+                    <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+
+    {% elif item.ai_status == "processing" %}
+
+        <div class="ai-summary">
+            <p>Generating AI summary...</p>
+        </div>
+
+    {% elif item.ai_status == "failed" %}
+
+        <div class="ai-summary">      
+            <p>AI summary unavailable.</p>
+        </div>
+
+    {% endif %}
+
     <div class="content">
         {{ entry.content|linebreaks }}
         <!-- |linebreaks turns newlines into <p> or <br> tags -->

@@ -197,6 +197,32 @@ html.dark #theme-toggle {
     font-size: 0.85em;
 }
 
+.ai-summary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.ai-summary h2 {
+    margin-top: 0;
+}
+
+.ai-tags {
+    margin-top: 1rem;
+}
+
+.ai-tags .tag {
+    display: inline-block;
+    padding: .2rem .6rem;
+    margin-right: .4rem;
+    border-radius: 999px;
+    background: var(--bg);
+    color: white;
+    font-size: .85rem;
+}
+
 /* ===================
      CATEGORIES    
 =================== */

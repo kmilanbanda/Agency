@@ -17,18 +17,58 @@
         {% endif %}
     </div>
 
+    {% if item.ai_status == "complete" %}    
+
+        <div class="ai-summary">
+            
+            <h2>AI Summary</h2>
+            
+            <p>{{ item.ai_summary }}</p>
+            
+            {% if item.ai_tags %}
+            <div class="ai-tags">
+                {% for tag in item.ai_tags %}
+                    <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+
+    {% elif item.ai_status == "pending" %}
+
+        <div class="ai-summary">
+            <p>AI summary generation pending...</p>
+        </div>
+
+    {% elif item.ai_status == "processing" %}
+
+        <div class="ai-summary">
+            <p>Generating AI summary...</p>
+        </div>
+
+    {% elif item.ai_status == "failed" %}
+
+        <div class="ai-summary">      
+            <p>AI summary unavailable.</p>
+        </div>
+
+    {% endif %}
+
     <div class="content">
         {{ item.content|safe }}
     </div>
-   
-    <div>
-        <form method="post" action="{% url 'feed:item_detail' slug=item.slug %}">
-            {% csrf_token %}
-            <button type="submit" name="save">
-                Save
-            </button>
-        </form>
-    </div>
+
+    {% if user.is_authenticated %}
+        <div>
+            <form method="post" action="{% url 'feed:item_detail' slug=item.slug %}">
+                {% csrf_token %}
+                <button type="submit" name="save">
+                    Save
+                </button>
+            </form>
+        </div>
+    {% endif %}
 
     <a href="{% url 'feed:reader' %}" class="back-link">← Back to Reader</a>
 {% endblock %}
