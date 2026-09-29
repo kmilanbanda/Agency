@@ -405,3 +405,46 @@ class GetCategoriesWithSourcesTest(TestCase):
             ),
             normalize_categories_with_sources_object(categories_with_sources),
         )
+
+
+class AI_Service_Tests(TestCase):
+    def setUp(self):
+        pass
+
+    def test_summarize_article_returns_summary_and_tags(self):
+        pass
+
+    def test_summarize_article_raises_on_invalid_json(self):
+        pass
+
+    def test_summarize_article_raises_when_summary_missing(self):
+        pass
+
+    def test_summarize_article_raises_when_tags_missing(self):
+        pass
+
+    def test_summarize_article_raises_when_summary_wrong_type(self):
+        pass
+
+    def test_summarize_article_raises_when_tags_wrong_type(self):
+        pass
+
+    def test_summarize_article_raises_when_provider_raises(self):
+        pass
+
+    def test_summarize_article_raises_when_rate_limited(self):
+        pass
+
+
+class AI_Summary_Worker_Tests(TestCase):
+    def setUp(self):
+        pass
+
+    def test_worker_marks_article_failed_when_provider_errors(self):
+        pass
+
+    def test_worker_skips_completed_articles(self):
+        pass
+
+    def test_worker_only_processes_completed_content(self):
+        pass
