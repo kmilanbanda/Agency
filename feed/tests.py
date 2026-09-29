@@ -48,6 +48,8 @@ class FeedItemDetailViewTest(TestCase):
             content="This is the full content for testing the detail view.",
             published_at=timezone.now(),
             source=self.source,
+            ai_summary="This is a test summary!",
+            ai_status="complete",
         )
 
     def test_item_detail_status_and_template(self):
@@ -70,6 +72,12 @@ class FeedItemDetailViewTest(TestCase):
         url = reverse("feed:item_detail", kwargs={"slug": "non-existent-slug"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_item_detail_displays_ai_summary(self):
+        url = reverse("feed:item_detail", kwargs={"slug": self.entry.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This is a test summary!")
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
