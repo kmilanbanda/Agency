@@ -6,6 +6,9 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from .ai.exceptions import AIProviderError, AIRateLimitError, AIResponseError
+from .ai.providers import MockProvider
+from .ai.service import AIService
 from .models import Category, FeedItem, FeedSource, Subscription
 from .views import get_categories_with_sources
 
@@ -409,31 +412,79 @@ class GetCategoriesWithSourcesTest(TestCase):
 
 class AI_Service_Tests(TestCase):
     def setUp(self):
-        pass
+        self.source = FeedSource.objects.create(
+            title="Test Source",
+            url="https://example.com/rss",
+        )
+        self.article = FeedItem.objects.create(
+            title="Test Article",
+            url="https://example.com/article",
+            content="This is a long article to be used for testing.",
+            content_status="complete",
+            source=self.source,
+            author="T. Ester",
+        )
 
     def test_summarize_article_returns_summary_and_tags(self):
-        pass
+        provider = (
+            MockProvider()
+        )  # default MockProvider returns a mock summary and three tags
+        service = AIService(provider)
+
+        result = service.summarize_article(self.article)
+        self.assertIsNotNone(result.summary)
+        self.assertIsNotNone(result.tags)
 
     def test_summarize_article_raises_on_invalid_json(self):
-        pass
+        provider = MockProvider(response="not json")
+        service = AIService(provider)
+
+        with self.assertRaises(AIResponseError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_summary_missing(self):
-        pass
+        provider = MockProvider(summary=None)
+        service = AIService(provider)
+
+        with self.assertRaises(AIResponseError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_tags_missing(self):
-        pass
+        provider = MockProvider(
+            response='{"summary": "This sumary has no tags with it!"}'
+        )
+        service = AIService(provider)
+
+        with self.assertRaises(AIResponseError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_summary_wrong_type(self):
-        pass
+        provider = MockProvider(summary=[])
+        service = AIService(provider)
+
+        with self.assertRaises(AIResponseError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_tags_wrong_type(self):
-        pass
+        provider = MockProvider(tags="wrong type")
+        service = AIService(provider)
+
+        with self.assertRaises(AIResponseError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_provider_raises(self):
-        pass
+        provider = MockProvider(exception=AIProviderError())
+        service = AIService(provider)
+
+        with self.assertRaises(AIProviderError):
+            service.summarize_article(self.article)
 
     def test_summarize_article_raises_when_rate_limited(self):
-        pass
+        provider = MockProvider(exception=AIRateLimitError())
+        service = AIService(provider)
+
+        with self.assertRaises(AIRateLimitError):
+            service.summarize_article(self.article)
 
 
 class AI_Summary_Worker_Tests(TestCase):

@@ -9,18 +9,18 @@ Do not include explanations.
 
 Use this schema:
 
-{
+{{
     "summary": "string",
     "tags": ["string", "..."]
-}
+}}
 
 If the article does not contain enough meaningful content,
 return:
 
-{
+{{
     "summary": "",
     "tags": []
-}
+}}
 
 Rules for summary:
  - Be concise
@@ -42,5 +42,5 @@ Article:
 
 def build_summary_prompt(content):
     return SUMMARY_PROMPT.format(
-        content=content[:MAX_ARTICLE_CHARS]
+        content=content[:MAX_ARTICLE_CHARS],
     )  # in a future update, limit by tokens, not chars

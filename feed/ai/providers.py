@@ -12,7 +12,22 @@ class OpenAIProvider(LLMProvider):
 
 
 class MockProvider(LLMProvider):
+    def __init__(
+        self,
+        response=None,
+        summary="[Mock] This is a great summary!",
+        tags=None,
+        exception=None,
+    ):
+        self.response = response
+        self.summary = summary
+        self.tags = tags or ["Mock", "AI", "Tags"]
+        self.exception = exception
+
     def generate(self, _):
-        summary = "[Mock] This is a very good article!"
-        tags = ["Mock", "Good", "Mock AI"]
-        return json.dumps({"summary": summary, "tags": tags})
+        if self.exception is not None:
+            raise self.exception
+        if self.response is not None:
+            return self.response
+
+        return json.dumps({"summary": self.summary, "tags": self.tags})

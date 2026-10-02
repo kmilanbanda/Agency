@@ -1,7 +1,7 @@
 import json
 
 from .exceptions import AIResponseError
-from .prompt import build_summary_prompt
+from .prompts import build_summary_prompt
 from .providers import MockProvider
 from .types import AISummaryResult
 
