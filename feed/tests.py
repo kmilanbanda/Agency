@@ -9,6 +9,7 @@ from django.utils import timezone
 from .ai.exceptions import AIProviderError, AIRateLimitError, AIResponseError
 from .ai.providers import MockProvider
 from .ai.service import AIService
+from .management.commands import process_ai_summary
 from .models import Category, FeedItem, FeedSource, Subscription
 from .views import get_categories_with_sources
 
@@ -489,13 +490,57 @@ class AI_Service_Tests(TestCase):
 
 class AI_Summary_Worker_Tests(TestCase):
     def setUp(self):
-        pass
+        self.default_content = "This is completed article content for testing."
+        self.source = FeedSource.objects.create(
+            title="Test Source",
+            url="https://example.com/rss",
+        )
+
+    def make_article(
+        self,
+        *,
+        title="Test Article",
+        content_status="complete",
+        ai_status="pending",
+        content=None,
+    ):
+        return FeedItem.objects.create(
+            title=title,
+            url=f"https://example.com/{FeedItem.objects.count() + 1}",
+            content=content or self.default_content,
+            content_status=content_status,
+            source=self.source,
+            ai_status=ai_status,
+        )
 
     def test_worker_marks_article_failed_when_provider_errors(self):
-        pass
+        article = self.make_article()
+
+        provider = MockProvider(exception=AIProviderError())
+        command = process_ai_summary.Command()
+        command.ai_service = AIService(provider)
+        command.process_ai_summary(article)
+
+        article.refresh_from_db()
+
+        self.assertEqual(article.ai_status, "failed")
 
     def test_worker_skips_completed_articles(self):
-        pass
+        article = self.make_article(ai_status="complete")
+
+        provider = MockProvider()
+        command = process_ai_summary.Command()
+        command.ai_service = AIService(provider)
+        command.process_ai_summary(article)
+
+        article.refresh_from_db()
+
+        self.assertEqual(article.ai_status, "complete")
 
     def test_worker_only_processes_completed_content(self):
-        pass
+        self.make_article(content_status="pending")
+
+        command = process_ai_summary.Command()
+        items = command.get_pending_items(10)
+
+        self.assertEqual(len(items), 0)

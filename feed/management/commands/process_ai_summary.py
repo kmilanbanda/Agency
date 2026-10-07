@@ -9,6 +9,7 @@ from feed.models import FeedItem
 
 class Command(BaseCommand):
     help = "Add ai summary to article"
+    ai_service = None
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -28,12 +29,13 @@ class Command(BaseCommand):
 
         try:
             limit = options["limit"]
-            self.ai_service = AIService()
+            if (
+                self.ai_service is None
+            ):  # this was implemented to allow tests to insert the necessary mock provider
+                self.ai_service = AIService()
+
             while not self.shutdown:
-                items = FeedItem.objects.filter(
-                    content_status="complete",
-                    ai_status="pending",
-                )[:limit]
+                items = self.get_pending_items(limit)
 
                 if not items:
                     time.sleep(5)
@@ -41,13 +43,7 @@ class Command(BaseCommand):
 
                 for item in items:
                     self.stdout.write(f"Processing AI Summary: {item.title}")
-                    try:
-                        self.process_ai_summary(item)
-
-                    except Exception as e:
-                        self.stderr.write(f"Failed {item.id}: {e}")
-                        item.ai_status = "failed"
-                        item.save(update_fields=["ai_status"])
+                    self.process_ai_summary(item)
 
         except KeyboardInterrupt:
             self.stdout.write(
@@ -65,10 +61,23 @@ class Command(BaseCommand):
             return
 
         # get ai metadata and summary
-        result = self.ai_service.summarize_article(item)
+        try:
+            result = self.ai_service.summarize_article(item)
+
+        except Exception as e:
+            self.stderr.write(f"Failed {item.id}: {e}")
+            item.ai_status = "failed"
+            item.save(update_fields=["ai_status"])
+            return
 
         # update item and save
         item.ai_summary = result["summary"]
         item.ai_tags = result["tags"]
         item.ai_status = "complete"
         item.save(update_fields=["ai_summary", "ai_tags", "ai_status"])
+
+    def get_pending_items(self, limit):
+        return FeedItem.objects.filter(
+            content_status="complete",
+            ai_status="pending",
+        )[:limit]
