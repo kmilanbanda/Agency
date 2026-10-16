@@ -26,8 +26,10 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: keep ai secret keys used in production secret!!
+CURRENT_PROVIDER = os.getenv("CURRENT_PROVIDER")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4-mini")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"

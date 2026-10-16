@@ -1,4 +1,7 @@
+import json
+import os
 import tempfile
+from unittest import skipUnless
 from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
@@ -7,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .ai.exceptions import AIProviderError, AIRateLimitError, AIResponseError
-from .ai.providers import MockProvider
+from .ai.providers import MockProvider, OpenAIProvider
 from .ai.service import AIService
 from .management.commands import process_ai_summary
 from .models import Category, FeedItem, FeedSource, Subscription
@@ -559,3 +562,24 @@ class AI_Summary_Worker_Tests(TestCase):
         items = command.get_pending_items(10)
 
         self.assertEqual([item.pk for item in items], [eligible.pk])
+
+
+@skipUnless(os.getenv("RUN_OPENAI_TESTS"), "Skipping OpenAI integration tests.")
+class OpenAIProviderTests(TestCase):
+    def setUp(self):
+        pass
+
+    def test_generate(self):
+        provider = OpenAIProvider()
+
+        response = provider.generate(
+            'Return exactly in JSON {"summary":"Hello","tags":["test"]}'
+        )
+
+        data = json.loads(response)
+
+        self.assertIn("summary", data)
+        self.assertIn("tags", data)
+
+        self.assertIsInstance(data["summary"], str)
+        self.assertIsInstance(data["tags"], list)

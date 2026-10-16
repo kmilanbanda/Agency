@@ -1,8 +1,10 @@
 import signal
 import time
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from feed.ai.providers import MockProvider, OpenAIProvider
 from feed.ai.service import AIService
 from feed.models import FeedItem
 
@@ -32,7 +34,11 @@ class Command(BaseCommand):
             if (
                 self.ai_service is None
             ):  # this was implemented to allow tests to insert the necessary mock provider
-                self.ai_service = AIService()
+                if settings.CURRENT_PROVIDER == "openai":
+                    provider = OpenAIProvider()
+                elif settings.CURRENT_PROVIDER == "mock":
+                    provider = MockProvider()
+                self.ai_service = AIService(provider)
 
             while not self.shutdown:
                 items = self.get_pending_items(limit)
