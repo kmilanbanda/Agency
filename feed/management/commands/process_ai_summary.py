@@ -71,8 +71,8 @@ class Command(BaseCommand):
             return
 
         # update item and save
-        item.ai_summary = result["summary"]
-        item.ai_tags = result["tags"]
+        item.ai_summary = result.summary
+        item.ai_tags = result.tags
         item.ai_status = "complete"
         item.save(update_fields=["ai_summary", "ai_tags", "ai_status"])
 

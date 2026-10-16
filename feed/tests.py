@@ -513,6 +513,18 @@ class AI_Summary_Worker_Tests(TestCase):
             ai_status=ai_status,
         )
 
+    def test_worker_marks_article_ai_status_complete_when_finished(self):
+        article = self.make_article()
+
+        provider = MockProvider()
+        command = process_ai_summary.Command()
+        command.ai_service = AIService(provider)
+        command.process_ai_summary(article)
+
+        article.refresh_from_db()
+
+        self.assertEqual(article.ai_status, "complete")
+
     def test_worker_marks_article_failed_when_provider_errors(self):
         article = self.make_article()
 
@@ -525,7 +537,7 @@ class AI_Summary_Worker_Tests(TestCase):
 
         self.assertEqual(article.ai_status, "failed")
 
-    def test_worker_skips_completed_articles(self):
+    def test_worker_skips_articles_with_summaries(self):
         article = self.make_article(ai_status="complete")
 
         provider = MockProvider()
@@ -538,9 +550,12 @@ class AI_Summary_Worker_Tests(TestCase):
         self.assertEqual(article.ai_status, "complete")
 
     def test_worker_only_processes_completed_content(self):
+        eligible = self.make_article()
         self.make_article(content_status="pending")
+        self.make_article(ai_status="processing")
+        self.make_article(ai_status="complete")
 
         command = process_ai_summary.Command()
         items = command.get_pending_items(10)
 
-        self.assertEqual(len(items), 0)
+        self.assertEqual([item.pk for item in items], [eligible.pk])

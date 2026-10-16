@@ -1,5 +1,8 @@
 import json
 
+from django.conf import settings
+from openai import OpenAI
+
 
 class LLMProvider:
     def generate(self, prompt):
@@ -7,8 +10,21 @@ class LLMProvider:
 
 
 class OpenAIProvider(LLMProvider):
+    def __init__(self):
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
     def generate(self, prompt):
-        raise NotImplementedError
+        response = self.client.responses.create(
+            model=settings.OPENAI_MODEL,
+            input=prompt,
+            text={
+                "format": {
+                    "type": "json_object",
+                }
+            },
+        )
+
+        return response.output_text
 
 
 class MockProvider(LLMProvider):
