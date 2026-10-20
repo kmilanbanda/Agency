@@ -11,6 +11,11 @@
     --link-visited: #5d5478;
     --meta: #9ca3af;
     --border: #d1d5db;
+    --highlight-bg: #d4d4d4;
+    --ai-summary-bg: #f5f5c3;
+    --ai-summary-highlight: black;
+    --item-entry-bg: #d2d2d2;
+    --search-bar-bg: rgba(255,255,255,0.8);
 }
 
 html.dark {
@@ -22,6 +27,11 @@ html.dark {
     --link-visited: #b19cd9;
     --meta: #a0aec0;
     --border: #2d3748;
+    --highlight-bg: #343434;
+    --ai-summary-bg: #121234;
+    --ai-summary-highlight: white;
+    --item-entry-bg: #2d2d2d;
+    --search-bar-bg: rgba(255,255,255,0.2);
 }
 
 /* ===================
@@ -86,7 +96,7 @@ a:visited {
 .sidebar {
     width: 280px;
     background-color: var(--bg);
-    border-right: 1px solid var(--bg);
+    border-right: 1px solid gray;
     flex-shrink: 0;
     padding: 2rem 1.5rem;
 }
@@ -143,6 +153,9 @@ html.dark #theme-toggle {
 
 .content {
     margin-bottom: 40px;
+    padding: 1.5rem;
+    max-width: 850px;
+    line-height: 1.6;
 }
 
 .content img {
@@ -150,6 +163,16 @@ html.dark #theme-toggle {
     max-width: 100%;
     max-height: 300px;
     object-fit: contain;
+}
+
+.content h2, .content h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 32px;
+}
+
+.content p {
+    margin-left: 1rem;
 }
 
 .feed-list {
@@ -165,9 +188,24 @@ html.dark #theme-toggle {
 }
 
 .entry-item {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--heading);
+    list-style: none;
+
+    background: var(--item-entry-bg);
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+    max-width: 1000px;
+
+    padding: 1.25rem 1.5rem;
+
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        transform .15s ease;
+}
+
+.entry-item:hover {
+    transform: translateX(4px);
 }
 
 .entry-item img {
@@ -198,11 +236,16 @@ html.dark #theme-toggle {
 }
 
 .ai-summary {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: linear-gradient(
+        135deg,
+        var(--bg) 0%,
+        color-mix(in srgb, var(--bg) 90%, var(--ai-summary-highlight)) 50%,
+        var(--bg) 100%
+    );
+    border-radius: 0.5rem;
     padding: 1rem;
     margin-bottom: 2rem;
+    box-shadow: 0 0 12px rgba(120, 180, 255, 0.08);
 }
 
 .ai-summary h2 {
@@ -211,16 +254,21 @@ html.dark #theme-toggle {
 
 .ai-tags {
     margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .ai-tags .tag {
     display: inline-block;
-    padding: .2rem .6rem;
-    margin-right: .4rem;
+    padding: .25rem .75rem;
+    margin-right: .2rem;
+    margin-left: .2rem;
     border-radius: 999px;
-    background: var(--bg);
-    color: white;
-    font-size: .85rem;
+    border: 1px solid var(--border);
+    background-color: var(--highlight-bg);
+    color: var(--text);
+    font-size: 0.85rem;
 }
 
 /* ===================
@@ -333,6 +381,18 @@ html.dark #theme-toggle {
 html.dark .sidebar nav a.active {
     background-color: #1e40af;
     color: #bfdbfe;
+}
+
+.search-bar {
+    border-radius: 4px;
+    width: 200px;
+    height: 20px;
+    background-color: var(--search-bar-bg);
+    color: gray;
+}
+
+.search-btn {
+    background-color: var(--search-bar-bg);
 }
 
 /* ===================

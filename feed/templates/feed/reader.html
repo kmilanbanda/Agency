@@ -56,7 +56,7 @@
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
     <!-- main content -->
-    <div>
+    <div style="margin-left: 20px">
     {% if user.is_authenticated %}
         <h1>Your Feed</h1>
     {% else %}
@@ -64,8 +64,8 @@
     {% endif %}
 
     <form method="get" action="{% url 'feed:reader' %}">
-        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search titles and descriptions...">
-        <button type="submit">Search</button>
+        <input class="search-bar" type="text" name="q" value="{{ request.GET.q }}" placeholder="Search articles...">
+        <button class="search-btn" type="submit">🔍</button>
     </form>
 
     {% if request.GET.q %}
@@ -73,7 +73,7 @@
     {% endif %}
 
     {% if entries %}
-        <ul>
+        <ul class="entry-list">
             {% for entry in page_obj %}
                 <li class="entry-item" tabindex="0">
                     <h3><a href="{% url 'feed:item_detail' slug=entry.slug %}">{{ entry.title }}</a></h3>

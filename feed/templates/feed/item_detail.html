@@ -21,10 +21,13 @@
 
         <div class="ai-summary">
             
-            <h2>AI Summary</h2>
+            <h2>✨ AI Insights</h2>
             
             <p>{{ item.ai_summary }}</p>
-            
+           
+
+            <h3>Tags</h3>
+
             {% if item.ai_tags %}
             <div class="ai-tags">
                 {% for tag in item.ai_tags %}
@@ -56,6 +59,7 @@
     {% endif %}
 
     <div class="content">
+        <h2>Original Article:</h2>
         {{ item.content|safe }}
     </div>
 
