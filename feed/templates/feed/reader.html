@@ -7,7 +7,6 @@
     
     <aside id="sidebar" class="sidebar">
         <h1>Categories</h1><br>
-        <h2><a href="{% url 'feed:reader' %}">Clear Filters</a></h2><br>
         {% if categories %}
         <h2>My Categories</h2>
         <ul class="category-tree">
@@ -18,12 +17,12 @@
                             <button class="toggle-btn" aria-expanded="false">
                                 ▶
                             </button>
-                            <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> {{ category.unread_count }} </h2>
+                            <h2><a href="{% url 'feed:reader' %}?category={{ category.slug }}">{{ category.title }}</a> <small>{{ category.unread_count }}</small></h2>
                         </div>
                         <ul class="feed-list hidden">
                             {% for source in sources %}
-                                <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
-                                    <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
+                                <li class="category-header"> 
+                                    <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> <small>{{ source.unread_count }}</small> </h3>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -38,7 +37,7 @@
                         </div>
                         <ul class="feed-list hidden">
                             {% for source in sources %}
-                                <li class="category-header" style="padding-left: .5rem; padding-top: 0px; padding-bottom: 0px;">
+                                <li class="category-header">
                                     <h3><a href="{% url 'feed:reader' %}?feed={{ source.slug }}">{{ source.title }}</a> {{ source.unread_count }} </h3>
                                 </li>
                             {% endfor %}
@@ -48,7 +47,10 @@
             {% endfor %}
         </ul>
         {% endif %}
-        <h2><a href="{% url 'feed:saved' %}">Saved</a></h2>
+        {% if user.is_authenticated %}
+            <h2 class="category-item category-header"><a href="{% url 'feed:saved' %}">Saved</a></h2>
+            <h2 class="category-item category-header"><a href="{% url 'feed:reader' %}">Clear Filters</a></h2>
+        {% endif %}
         {% load static %}
         <script src="{% static 'feed/js/sidebar.js' %}"></script>
     </aside>
