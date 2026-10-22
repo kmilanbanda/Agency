@@ -1,15 +1,16 @@
 {% extends 'feed/base.html' %}
-
+{% load static %}
 {% block title %}Home | Agency{% endblock %}
 
 {% block content %}
     <div class="hero">
-        <div>
-            <h1>Agency</h1>
-            <span style="text-decoration: underline;">You</span> Are In Charge.<br>Take The Initiative.<br>Be Intentional.<br>Take. Back. <span style="color: red;">Agency.</span>
-        </div>
+        <h1 class="hero-title">Agency is an RSS Reader for users who want to control what they consume</h1>
+        <p class="hero-tagline"><em>You</em> are in charge. Take the initiative. Be intentional.<br /> Take. Back. <span style="color: red;">Agency.</span></p>
     </div>
-    <div style="text-align: center;">
-       <a href="{% url 'feed:reader' %}">Get Started</a>
+    <div>
+       <a href="{% url 'feed:reader' %}" class="hero-button">Get Started</a>
+    </div>
+    <div class="hero-preview">
+        <img src="{% static 'images/reader.png' %}" alt="Agency Reader">
     </div>
 {% endblock %}

@@ -15,7 +15,9 @@
     --ai-summary-bg: #f5f5c3;
     --ai-summary-highlight: black;
     --item-entry-bg: #d2d2d2;
-    --search-bar-bg: rgba(255,255,255,0.8);
+    --search-bar-bg: rgb(191,191,191);
+    --save-btn-bg: rgb(191,191,191);
+    --save-btn-text: var(--text);
 }
 
 html.dark {
@@ -31,7 +33,9 @@ html.dark {
     --ai-summary-bg: #121234;
     --ai-summary-highlight: white;
     --item-entry-bg: #2d2d2d;
-    --search-bar-bg: rgba(255,255,255,0.2);
+    --search-bar-bg: rgb(63,63,63);
+    --save-btn-bg: rgb(63,63,63);
+    --save-btn-text: var(--text);
 }
 
 /* ===================
@@ -48,8 +52,20 @@ body {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 
+main {
+    margin: 0;
+    padding: 0;
+}
+
+footer {
+    text-align: center;
+    margin-top: auto;
+}
+
 h1, h2, h3 {
-    color: var(--heading);                
+    color: var(--heading);               
+    margin-left: 1rem;
+    margin-bottom: 0rem;
 }
 
 a {
@@ -66,7 +82,13 @@ a:visited {
     color: var(--link-visited);
 }
 
-.meta, small, time, figcaption {
+.meta {
+    color: var(--meta);
+    font-size: 0.75rem;
+    margin-left: 2rem;
+}
+
+small, time, figcaption {
     color: var(--meta);                
     font-size: 0.9em;
     margin: 10px 0 30px;
@@ -107,6 +129,12 @@ a:visited {
     flex-direction: column;
 }
 
+.main-content h1 {
+    margin-top: 0rem;
+
+    padding: 0rem;
+}
+
 /* ===================
      NAVIGATION
 =================== */
@@ -139,12 +167,46 @@ html.dark #theme-toggle {
 =================== */
 
 .hero {
-    height: 100vh;
-    display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    font-size: clamp(2rem, 8vw, 6rem)
+    text-align: left;
+}
+
+.hero-title {
+    font-size: 3rem;
+    margin-left: 3rem;
+    max-width: 80vw;
+}
+
+.hero-tagline {
+    font-size: 1rem;
+    margin-left: 3rem;
+}
+
+.hero-button {
+    margin-left: 3rem;
+}
+
+.hero-preview {
+    perpective: 1500px;
+}
+
+.hero-preview img {
+    display: block;
+
+    border-radius: 18px;
+
+    border: 1px solid rgba(255,255,255,0.8);
+
+    box-shadow:
+        0 40px 80px rgba(0,0,0,.45);
+
+    transform:
+        rotateY(0deg)
+        rotateX(60deg)
+        rotateZ(-20deg)
+        translateX(100px)
+        translateY(-300px)
 }
 
 /* ===================
@@ -152,8 +214,6 @@ html.dark #theme-toggle {
 =================== */
 
 .content {
-    margin-bottom: 40px;
-    padding: 1.5rem;
     max-width: 850px;
     line-height: 1.6;
 }
@@ -166,13 +226,15 @@ html.dark #theme-toggle {
 }
 
 .content h2, .content h3 {
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    font-size: 32px;
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+    margin-left: 1rem;
 }
 
 .content p {
-    margin-left: 1rem;
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+    text-align: justify;
 }
 
 .feed-list {
@@ -244,12 +306,17 @@ html.dark #theme-toggle {
     );
     border-radius: 0.5rem;
     padding: 1rem;
+    margin-top: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 0 12px rgba(120, 180, 255, 0.08);
 }
 
 .ai-summary h2 {
     margin-top: 0;
+}
+
+.ai-summary p {
+    max-width: 1000px;
 }
 
 .ai-tags {
@@ -376,6 +443,24 @@ html.dark #theme-toggle {
 .toggle-btn:hover {
     background: rgba(255,255,255,.08);
     border-radius: 3px;
+}
+
+.save-btn {
+    min-width: 4rem;
+    min-height: 2rem;
+    margin-left: 3rem;
+    background: var(--save-btn-bg);
+    color: var(--save-btn-text);
+    text: 1rem;
+}
+
+.save-btn:hover {
+    background: linear-gradient(
+        135deg,
+        var(--save-btn-bg) 0%,
+        color-mix(in srgb, var(--save-btn-bg) 80%, var(--save-btn-text)) 60%,
+        var(--save-btn-bg) 100%
+    );
 }
 
 .sidebar nav a.active {

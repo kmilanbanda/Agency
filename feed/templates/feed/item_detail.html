@@ -6,8 +6,7 @@
     <h1>{{ item.title }}</h1>
     
     <div class="meta">
-        Published: {{ item.published_at|date:"F d, Y" }}<br>
-        Authored By: {{ item.author }}
+        Published: {{ item.published_at|date:"F d, Y" }} | Authored By: {{ item.author }} | 
         <a href="{{ item.url }}" class="link">Link to article</a>
     </div>
    
@@ -67,7 +66,7 @@
         <div>
             <form method="post" action="{% url 'feed:item_detail' slug=item.slug %}">
                 {% csrf_token %}
-                <button type="submit" name="save">
+                <button type="submit" name="save" class="save-btn">
                     Save
                 </button>
             </form>
