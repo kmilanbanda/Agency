@@ -146,7 +146,7 @@ class UserTest(TestCase):
         response = self.client.get("/feeds/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Your Feed Subscriptions")
-        self.assertContains(response, "add-feed")
+        self.assertContains(response, "action-card")
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
