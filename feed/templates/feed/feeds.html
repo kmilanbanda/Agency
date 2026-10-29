@@ -3,43 +3,54 @@
 
 <h1>Your Feed Subscriptions</h1>
 {% if user.is_authenticated %}
-
-    <div style="left-padding: .5rem">
-        <h3>Import/Export OPML</h3>
-        <form method="post" action="{% url 'feed:opml' %}" enctype="multipart/form-data" style="display: inline;">
-            {% csrf_token %}
-            <div style="margin: 20px 0;">
-                <label for="opml_file">Select OPML file to import:</label><br>
-                <input type="file" name="opml_file" id="opml_file" accept=".opml,.xml" require>
-            </div>
-            <button type="submit" name="import_opml">
-                Import
-            </button>
-        </form>
-        <form method="get" action="{% url 'feed:opml' %}" style="display: inline;">
-            <button type="submit" name="export_opml">
-                Export
-            </button>
-        </form>
+    <div class="feed-actions">
+        <div class="action-card">
+            <h3 style="margin-left: 0">Import/Export OPML</h3>
+            <form method="post" action="{% url 'feed:opml' %}" enctype="multipart/form-data" style="display: inline;">
+                {% csrf_token %}
+                <div style="margin: 20px 0;">
+                    <label for="opml_file">Select OPML file to import:</label><br>
+                    <input type="file" name="opml_file" id="opml_file" accept=".opml,.xml" require>
+                </div>
+                <button type="submit" name="import_opml" class="feed-btn">
+                    Import
+                </button>
+            </form>
+            <form method="get" action="{% url 'feed:opml' %}" style="display: inline;">
+                <button type="submit" name="export_opml" class="feed-btn">
+                    Export
+                </button>
+            </form>
+        </div>
+        <div class="action-card">
+            <form method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>Add New Feed</legend>
+                    <div class="input-container">
+                        <label for="id_title" class="input-title">Title:</label>
+                        <input type="text" id="id_title" name="title" required="required" placeholder="Input the feed's title"><br>
+                    </div>
+                    <div class="input-container">
+                        <label for="id_url" class="input-title">URL:</label>
+                        <input type="text" id="id_url" name="url" required="required" placeholder="Input the feed's URL"><br>
+                    </div>
+                    <div class="input-container">
+                        <label for="id_site_url" class="input-title">Site URL:</label>
+                        <input type="text" id="id_site_url" name="site_url" placeholder="Input the site URL (optional)"><br>
+                    </div>
+                </fieldset>
+                <button type="submit" class="feed-btn">Add Feed</button>
+            </form>
+        </div>
     </div>
-
-    <div class="add-feed'form" style="left-padding: .5rem">
-        <h3>Add New Feed</h3>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Add Feed</button>
-        </form>
-    </div>
-
     <hr>
-
-    <h3>Your Feeds</h3>
+    <h2>Your Feeds</h2>
     {% if categorized_subs %}
         {% for category, subscriptions in categorized_items %}
             {% if subscriptions %}
                 <h3>{{ category }}</h3>
-                <ul>
+                <ul class="feed-list">
                     {% for subscription in subscriptions %}
                          <li>
                             <div>
@@ -50,12 +61,12 @@
                             <form method="post" style="display: inline;">
                                 {% csrf_token %}
                                 <input type="hidden" name="feed_id" value="{{ subscription.id }}">
-                                <button type="submit" name="delete_feed" value="1" onclick="return confirm('Remove this feed?')">
+                                <button type="submit" name="delete_feed" value="1" onclick="return confirm('Remove this feed?')" class="feed-btn">
                                     Remove
                                 </button>
                             </form>
 
-                            <button onclick="openCategorizeModal({{ subscription.id }}, '{{ subscription.feed.title|escapejs }}')">
+                            <button onclick="openCategorizeModal({{ subscription.id }}, '{{ subscription.feed.title|escapejs }}')" class="feed-btn">
                                 Categorize
                             </button>
                         </li>

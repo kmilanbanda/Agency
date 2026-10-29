@@ -94,16 +94,22 @@ small, time, figcaption {
     margin: 10px 0 30px;
 }
 
+fieldset {
+    min-width: 200px;
+    max-width: 300px;
+}
+
 /* ===================
        LAYOUT
 =================== */
 
 .layout {
     display: flex;
-    min-height: 100vh;
+    max-height: 100vh;
 }
 
 .topbar {
+    width: 100%;
     background-color: var(--bg);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -111,7 +117,7 @@ small, time, figcaption {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    position: relative;
+    position: fixed;
     z-index: 1100;
 }
 
@@ -120,18 +126,18 @@ small, time, figcaption {
     background-color: var(--bg);
     border-right: 1px solid gray;
     flex-shrink: 0;
-    padding: 2rem 1.5rem;
+    padding: 0 1rem;
+    overflow: auto;
 }
 
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    padding-top: 64px;
 }
 
 .main-content h1 {
-    margin-top: 0rem;
-
     padding: 0rem;
 }
 
@@ -149,7 +155,6 @@ small, time, figcaption {
 
 .topbar-link {
     color: var(--heading);
-    border-bottom: 1px solid var(--border);
     padding: 1px 10px;
 } 
 
@@ -167,6 +172,7 @@ html.dark #theme-toggle {
 =================== */
 
 .hero {
+    overflow: hidden;
     justify-content: center;
     align-items: center;
     text-align: left;
@@ -174,6 +180,7 @@ html.dark #theme-toggle {
 
 .hero-title {
     font-size: 3rem;
+    margin-top: 0;
     margin-left: 3rem;
     max-width: 80vw;
 }
@@ -188,11 +195,19 @@ html.dark #theme-toggle {
 }
 
 .hero-preview {
-    perpective: 1500px;
+    perspective: 1800px;
+
+    width: 100vw;
+    aspect-ratio: 16/9;
+
+    justify-content: center;
+    align-items: center;
+    position: fixed;
 }
 
 .hero-preview img {
-    display: block;
+    width: 100%;
+    object-fit: contain;
 
     border-radius: 18px;
 
@@ -202,11 +217,11 @@ html.dark #theme-toggle {
         0 40px 80px rgba(0,0,0,.45);
 
     transform:
-        rotateY(0deg)
-        rotateX(60deg)
+        translateX(450px)
+        translateY(-150px)
+        rotateY(30deg)
+        rotateX(20deg)
         rotateZ(-20deg)
-        translateX(100px)
-        translateY(-300px)
 }
 
 /* ===================
@@ -306,9 +321,9 @@ html.dark #theme-toggle {
     );
     border-radius: 0.5rem;
     padding: 1rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin: 2rem;
     box-shadow: 0 0 12px rgba(120, 180, 255, 0.08);
+    max-width: 900px;
 }
 
 .ai-summary h2 {
@@ -336,6 +351,42 @@ html.dark #theme-toggle {
     background-color: var(--highlight-bg);
     color: var(--text);
     font-size: 0.85rem;
+}
+
+.feed-actions {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.action-card {
+    background-color: var(--item-entry-bg);
+    border-bottom: 1px solid white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    min-width: 300px;
+}
+
+.action-card form fieldset{
+    border-style: none;
+}
+
+.feed-list {
+}
+
+.feed-list ul {
+    list-style-type: none;
+}
+
+.feed-list li {
+    border-radius: 4px;
+    background-color: var(--item-entry-bg);
+    border-bottom: 1px solid white;
+    margin: 10px 10px;
+    padding: 10px 10px;
+    max-width: 400px;
 }
 
 /* ===================
@@ -463,6 +514,24 @@ html.dark #theme-toggle {
     );
 }
 
+.feed-btn {
+    min-width: 50px;
+    min-height: 20px;
+    margin: 5px 10px;
+    background: var(--save-btn-bg);
+    color: var(--save-btn-text);
+    text: 1rem;
+}
+
+.feed-btn:hover {
+    background: linear-gradient(
+        135deg,
+        var(--save-btn-bg) 0%,
+        color-mix(in srgb, var(--save-btn-bg) 80%, var(--save-btn-text)) 60%,
+        var(--save-btn-bg) 100%
+    );
+}
+
 .sidebar nav a.active {
     background-color: #e0f2fe;
     color: #0369a1;
@@ -484,6 +553,18 @@ html.dark .sidebar nav a.active {
 
 .search-btn {
     background-color: var(--search-bar-bg);
+}
+
+.input-title {
+    width: 100px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.input-container {
+    display: flex;
+    margin: 10px;
+    width: 1000px;
 }
 
 /* ===================

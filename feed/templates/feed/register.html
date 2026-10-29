@@ -2,10 +2,10 @@
 
 {% block content %}
 <h2>Register</h2>
-<form method="post">
+<form method="post" style="padding-left: 2rem">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Create Account</button>
+    <button type="submit" class="save-btn">Create Account</button>
 </form>
-<p>Already have an account? <a href="{% url 'feed:login' %}">Log in</a></p>
+<p style="padding-left: 2rem">Already have an account? <a href="{% url 'feed:login' %}">Log in</a></p>
 {% endblock %}

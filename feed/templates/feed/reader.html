@@ -6,9 +6,8 @@
     <!-- Sidebar -->
     
     <aside id="sidebar" class="sidebar">
-        <h1>Categories</h1><br>
         {% if categories %}
-        <h2>My Categories</h2>
+        <h1>My Categories</h1>
         <ul class="category-tree">
             {% for category, sources in categories %}
                 {% if category %}
@@ -48,8 +47,8 @@
         </ul>
         {% endif %}
         {% if user.is_authenticated %}
-            <h2 class="category-item category-header"><a href="{% url 'feed:saved' %}">Saved</a></h2>
-            <h2 class="category-item category-header"><a href="{% url 'feed:reader' %}">Clear Filters</a></h2>
+            <h2 class="category-item category-header" style="padding-left: 1.6rem;"><a href="{% url 'feed:saved' %}">Saved</a></h2>
+            <h2 class="category-item category-header" style="padding-left: 1.6rem;"><a href="{% url 'feed:reader' %}">Clear Filters</a></h2>
         {% endif %}
         {% load static %}
         <script src="{% static 'feed/js/sidebar.js' %}"></script>
