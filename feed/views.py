@@ -470,17 +470,13 @@ def export_opml(request):
         opml_content += "   </outline>\n"
 
     uncategorized = subscriptions.filter(category__isnull=True)
-    if uncategorized.exists():
-        opml_content += '   <outline text="Uncategorized">\n'
-        for sub in uncategorized:
-            feed = sub.feed
-            opml_content += f'      <outline text="{sub.title or feed.title}" '
-            opml_content += f'type="rss" xmlUrl="{feed.url}" '
-            if feed.site_url:
-                opml_content += f'htmlUrl="{feed.site_url}" '
-            opml_content += "/>\n"
-        opml_content += "   </outline>\n"
-
+    for sub in uncategorized:
+        feed = sub.feed
+        opml_content += f'   <outline text="{sub.title or feed.title}" '
+        opml_content += f'type="rss" xmlUrl="{feed.url}" '
+        if feed.site_url:
+            opml_content += f'htmlUrl="{feed.site_url}" '
+        opml_content += "/>\n"
     opml_content += "   </body>\n</opml>"
 
     response = HttpResponse(opml_content, content_type="text/xml")
