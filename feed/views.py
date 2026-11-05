@@ -1,8 +1,6 @@
 from collections import defaultdict
-from datetime import UTC, datetime
 
 import defusedxml.ElementTree as ET
-import feedparser
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -54,85 +52,35 @@ def item_detail(request, slug):
 
 
 def reader(request):
-    sources = FeedSource.objects.all()
-
-    if request.user.is_authenticated:
-        subscriptions = (
-            Subscription.objects.filter(user=request.user)
-            .select_related("category")
-            .annotate(
-                unread_count=Count(
-                    "feed__items__user_items",
-                    filter=Q(
-                        feed__items__user_items__user=request.user,
-                        feed__items__user_items__is_read=False,
-                    ),
-                )
-            )
-        )
-        subscription_lookup = {sub.feed.id: sub for sub in subscriptions}
-
     categories_with_sources = []
     if request.user.is_authenticated:
-        categories_with_sources, sources = get_categories_with_sources(request)
-
-    all_entries = []
-    source_limit = 10
+        categories_with_sources = get_categories_with_sources(request)
     query = request.GET.get("q", "").strip()
 
-    for source in sources:
-        feed = feedparser.parse(source.url)
-        if feed.bozo:
-            continue
-        source.fetched_at = timezone.now()
-        source.save(update_fields=["last_fetched"])
+    # Still need to address possibility of no user
+    all_entries = UserFeedItem.objects.all()
+    if request.user.is_authenticated:
+        all_entries = all_entries.filter(user=request.user).select_related(
+            "item", "item__source"
+        )
 
-        for entry in feed.entries[:source_limit]:
-            published_parsed = entry.get("published_parse") or entry.get(
-                "updated_parsed"
+        category_slug = request.GET.get("category")
+        if category_slug:
+            all_entries = all_entries.filter(
+                item__source__subscriptions__category__slug=category_slug,
             )
-            published_at = None
-            if published_parsed:
-                published_at = datetime(*published_parsed[:6], tzinfo=UTC)
-            image_url = get_image_url(entry)
 
-            # get content from item/entry
-            content = ""
-            if "content" in entry:
-                content = entry.content[0].value
-            elif "summary" in entry:
-                content = entry.summary
+    feed_slug = request.GET.get("feed")
+    if feed_slug:
+        all_entries = all_entries.filter(item__source__slug=feed_slug)
 
-            max_len_title = FeedItem._meta.get_field("title").max_length
-            max_len_author = FeedItem._meta.get_field("author").max_length
-            max_len_description = FeedItem._meta.get_field("description").max_length
-            item, _ = FeedItem.objects.get_or_create(
-                url=entry.get("link", "#"),
-                defaults={
-                    "source": source,
-                    "title": entry.title[:max_len_title],
-                    "published_at": published_at,
-                    "author": entry.get("author", "Unknown")[:max_len_author],
-                    "description": entry.get("summary", "No description")[
-                        :max_len_description
-                    ],
-                    "image_url": image_url or None,
-                    "content": content,
-                },
-            )
-            if request.user.is_authenticated:
-                item.category = subscription_lookup[source.id].category
+    if query:
+        all_entries = all_entries.filter(
+            Q(item__title__icontains=query) | Q(item__description__icontains=query)
+        )
 
-            if request.user.is_authenticated:
-                _, _ = UserFeedItem.objects.get_or_create(
-                    user=request.user,
-                    item=item,
-                )
-            all_entries.append(item)
-
-    if query != "":
-        all_entries = filter_entries(all_entries, query)
-    all_entries.sort(key=lambda e: e.published_at, reverse=True)
+    all_entries = all_entries.distinct()
+    all_entries = all_entries.order_by("-item__published_at")
     paginator = Paginator(all_entries, per_page=10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
@@ -154,7 +102,6 @@ def reader(request):
 def get_categories_with_sources(request):
     categories_with_sources = []
 
-    sources = FeedSource.objects.filter(subscriptions__user=request.user)
     categories_list = Category.objects.filter(user=request.user).annotate(
         unread_count=Count(
             "subscriptions__feed__items__user_items",
@@ -164,6 +111,7 @@ def get_categories_with_sources(request):
             ),
         )
     )
+
     for category in categories_list:
         category_sources = (
             FeedSource.objects.filter(
@@ -200,40 +148,7 @@ def get_categories_with_sources(request):
     )
 
     categories_with_sources.append((None, uncategorized_sources))
-
-    # filter out sources based on category or feed queries
-    category_slug = request.GET.get("category")
-    feed_slug = request.GET.get("feed")
-    if category_slug:
-        if category_slug != "Uncategorized":
-            sources = FeedSource.objects.filter(
-                subscriptions__user=request.user,
-                subscriptions__category__slug=category_slug,
-            )
-        else:
-            sources = FeedSource.objects.filter(
-                subscriptions__user=request.user,
-                subscriptions__category=None,
-            )
-
-    elif feed_slug:
-        sources = FeedSource.objects.filter(
-            subscriptions__user=request.user,
-            subscriptions__feed__slug=feed_slug,
-        )
-
-    return (categories_with_sources, sources)
-
-
-def get_image_url(entry):
-    image_url = None
-    if "media_content" in entry:
-        for media in entry.media_content:
-            if media.get("medium") == "image":
-                image_url = media.get("url")
-    elif "enclosure" in entry and entry.enclosure.get("type", "").startswith("image/"):
-        image_url = entry.enclosure.get("url")
-    return image_url
+    return categories_with_sources
 
 
 def filter_entries(entries, query):
@@ -250,12 +165,9 @@ def filter_entries(entries, query):
 
 @login_required
 def saved(request):
-    saved_user_items = UserFeedItem.objects.filter(user=request.user).filter(
-        is_saved=True
-    )
-    items = FeedItem.objects.filter(user_items__in=saved_user_items)
+    items = UserFeedItem.objects.filter(user=request.user, is_saved=True)
 
-    categories_with_sources, _ = get_categories_with_sources(request)
+    categories_with_sources = get_categories_with_sources(request)
 
     paginator = Paginator(items, per_page=10)
     page_number = request.GET.get("page", 1)

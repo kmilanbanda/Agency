@@ -77,12 +77,12 @@
         <ul class="entry-list">
             {% for entry in page_obj %}
                 <li class="entry-item" tabindex="0">
-                    <h3><a href="{% url 'feed:item_detail' slug=entry.slug %}">{{ entry.title }}</a></h3>
-                    {% if entry.image_url %}
-                    <img src="{{ entry.image_url }}" alt="Featured image" style="max-width: 100px;">
+                    <h3><a href="{% url 'feed:item_detail' slug=entry.item.slug %}">{{ entry.item.title }}</a></h3>
+                    {% if entry.item.image_url %}
+                    <img src="{{ entry.item.image_url }}" alt="Featured image" style="max-width: 100px;">
                     {% endif %}<br>
-                    <small>From: <strong>{{ entry.source }}</strong> | {{ entry.published_at }} | {{ entry.category }}</small>
-                    <p>{{ entry.description|safe|truncatewords:50 }}</p>
+                    <small>From: <strong>{{ entry.item.source }}</strong> | {{ entry.item.published_at }} | {{ entry.item.category }}</small>
+                    <p>{{ entry.item.description|safe|truncatewords:50 }}</p>
                 </li>
             {% endfor %}
             <small>

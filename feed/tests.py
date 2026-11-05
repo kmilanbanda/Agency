@@ -12,8 +12,8 @@ from django.utils import timezone
 from .ai.exceptions import AIProviderError, AIRateLimitError, AIResponseError
 from .ai.providers import MockProvider, OpenAIProvider
 from .ai.service import AIService
-from .management.commands import process_ai_summary
-from .models import Category, FeedItem, FeedSource, Subscription
+from .management.commands import fetch_feed_items, process_ai_summary
+from .models import Category, FeedItem, FeedSource, Subscription, UserFeedItem
 from .views import get_categories_with_sources
 
 
@@ -100,9 +100,13 @@ class BrokenFeedTest(TestCase):
         self.mock_feed.entries = []
 
     def test_broken_feed_status(self):
-        with patch("feed.views.feedparser.parse", return_value=self.mock_feed):
-            response = self.client.get(reverse("feed:reader"))
-            self.assertEqual(response.status_code, 200)
+        with patch(
+            "feed.management.commands.fetch_feed_items.feedparser.parse",
+            return_value=self.mock_feed,
+        ):
+            command = fetch_feed_items.Command()
+            command.fetch_feed(self.source)
+            self.assertEqual(self.source.last_fetched, None)
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -119,8 +123,25 @@ class FeedSourceModelTest(TestCase):
 @override_settings(SECURE_SSL_REDIRECT=False)
 class ReaderViewTest(TestCase):
     def setUp(self):
-        self.source = FeedSource.objects.create(
+        user = User.objects.create_user(
+            username="testuser",
+            password="password",
+        )
+
+        source = FeedSource.objects.create(
             title="Test Feed", url="https://feeds.arstechnica.com/arstechnica/index"
+        )
+
+        item = FeedItem.objects.create(
+            source=source,
+            title="Test Item",
+            description="This is a Test Item from the Test Feed",
+            content="testtesttesttesttesttesttesttest",
+        )
+
+        _ = UserFeedItem.objects.create(
+            user=user,
+            item=item,
         )
 
     def test_reader_view_status(self):
@@ -129,7 +150,7 @@ class ReaderViewTest(TestCase):
 
     def test_reader_fetches_entries(self):
         response = self.client.get(reverse("feed:reader"))
-        self.assertContains(response, "Test Feed")
+        self.assertContains(response, "Test Item")
         self.assertContains(response, "<li")
 
 
@@ -359,11 +380,8 @@ class GetCategoriesWithSourcesTest(TestCase):
 
         request.user = self.user
 
-        categories_with_sources, sources = get_categories_with_sources(request)
+        categories_with_sources = get_categories_with_sources(request)
 
-        test_sources_object = FeedSource.objects.filter(
-            subscriptions__user=request.user
-        )
         test_categories_with_sources_object = []
         test_categories_with_sources_object.append(
             (
@@ -390,11 +408,6 @@ class GetCategoriesWithSourcesTest(TestCase):
                     subscriptions__user=request.user, subscriptions__category=None
                 ),
             )
-        )
-
-        self.assertCountEqual(
-            list(test_sources_object.values_list("id", flat=True)),
-            list(sources.values_list("id", flat=True)),
         )
 
         def normalize_categories_with_sources_object(obj):

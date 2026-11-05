@@ -50,15 +50,15 @@ class FeedSource(models.Model):
 
 
 class FeedItem(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.TextField()
     slug = models.SlugField(
         max_length=300,
         unique=True,
         help_text="Auto-generated from title",
     )
-    description = models.CharField(max_length=2048, blank=True)
+    description = models.TextField(blank=True)
     content = models.TextField(blank=True)
-    author = models.CharField(max_length=200)
+    author = models.CharField(max_length=255)
     published_at = models.DateTimeField(null=True, blank=True)
     fetched_at = models.DateTimeField(auto_now=True)
     source = models.ForeignKey(
