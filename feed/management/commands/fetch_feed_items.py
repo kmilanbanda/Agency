@@ -1,9 +1,10 @@
 import signal
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import feedparser
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 
 from feed.models import FeedItem, FeedSource
@@ -25,8 +26,7 @@ class Command(BaseCommand):
             while not self.shutdown:
                 cutoff = timezone.now() - timedelta(minutes=10)
                 sources = FeedSource.objects.filter(
-                    Q(last_fetched__isnull=True) |
-                    Q(last_fetched__lt=cutoff)
+                    Q(last_fetched__isnull=True) | Q(last_fetched__lt=cutoff)
                 )
                 for source in sources:
                     if self.shutdown:
