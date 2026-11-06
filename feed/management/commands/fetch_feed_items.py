@@ -22,8 +22,12 @@ class Command(BaseCommand):
         signal.signal(signal.SIGTERM, self.handle_sigterm)
 
         try:
-            sources = FeedSource.objects.all()
             while not self.shutdown:
+                cutoff = timezone.now() - timedelta(minutes=10)
+                sources = FeedSource.objects.filter(
+                    Q(last_fetched__isnull=True) |
+                    Q(last_fetched__lt=cutoff)
+                )
                 for source in sources:
                     if self.shutdown:
                         break
@@ -33,7 +37,7 @@ class Command(BaseCommand):
                     break
 
                 self.stdout.write("Sleeping for 10 minutes...")
-                time.sleep(600)
+                time.sleep(15)
         except KeyboardInterrupt:
             self.stdout.write(
                 self.style.WARNING("Worker shut down by keyboard interrupt.")
